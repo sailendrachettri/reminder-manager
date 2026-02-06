@@ -70,10 +70,8 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
-          
           crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
-            
             // TITLE LABEL
             TextField(
               style: TextStyle(fontSize: 25),
@@ -82,8 +80,11 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
                 border: InputBorder.none,
                 isDense: true,
                 contentPadding: EdgeInsets.zero,
-                hintStyle: TextStyle(color: Color.fromARGB(255, 138, 135, 135), fontSize: 14, fontStyle: FontStyle.italic),
-                
+                hintStyle: TextStyle(
+                  color: Color.fromARGB(255, 138, 135, 135),
+                  fontSize: 14,
+                  fontStyle: FontStyle.italic,
+                ),
               ),
             ),
 
@@ -92,13 +93,21 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
             // DESCRIPTION LABEL
             TextField(
               maxLines: 2,
-              style: TextStyle(fontSize: 15, color: Color.fromARGB(255, 148, 145, 145), fontStyle: FontStyle.italic),
+              style: TextStyle(
+                fontSize: 15,
+                color: Color.fromARGB(255, 148, 145, 145),
+                fontStyle: FontStyle.italic,
+              ),
               decoration: InputDecoration(
                 hintText: 'Notes',
                 border: InputBorder.none,
                 isDense: true,
                 contentPadding: EdgeInsets.zero,
-                hintStyle: TextStyle(color: Color.fromARGB(255, 138, 135, 135), fontSize: 14, fontStyle: FontStyle.italic),
+                hintStyle: TextStyle(
+                  color: Color.fromARGB(255, 138, 135, 135),
+                  fontSize: 14,
+                  fontStyle: FontStyle.italic,
+                ),
               ),
             ),
           ],
@@ -151,8 +160,13 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
           final bool isSelected = selectedTypeIndex == index;
 
           return ChoiceChip(
-            label: Text(reminderTypes[index]),
+            label: Text(reminderTypes[index], style: TextStyle(
+              fontSize: 10
+            ),),
             selected: isSelected,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
             onSelected: (_) {
               setState(() {
                 selectedTypeIndex = index;
