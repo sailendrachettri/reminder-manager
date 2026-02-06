@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
-class AddReminderScreen extends StatefulWidget {
-  const AddReminderScreen({super.key});
+class AddReminderSheet extends StatefulWidget {
+  const AddReminderSheet({super.key});
 
   @override
-  State<AddReminderScreen> createState() => _AddReminderScreenState();
+  State<AddReminderSheet> createState() => _AddReminderSheetState();
 }
 
-class _AddReminderScreenState extends State<AddReminderScreen> {
+class _AddReminderSheetState extends State<AddReminderSheet> {
   final List<String> reminderTypes = [
-    'One Time',
+    'Once',
     'Daily',
     'Weekly',
     'Monthly',
@@ -17,160 +17,175 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
   ];
 
   int selectedTypeIndex = 0;
+  DateTime? selectedDate;
+  TimeOfDay? selectedTime;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Add Reminder')),
+    final height = MediaQuery.of(context).size.height;
 
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // _buildSectionTitle('Reminder Details'),
-                    _buildDetailsCard(),
-
-                    const SizedBox(height: 24),
-
-                    // _buildSectionTitle('Repeat Type'),
-                    _buildRepeatTypeSelector(),
-
-                    const SizedBox(height: 24),
-
-                    _buildSectionTitle('Schedule'),
-                    _buildScheduleCard(),
-                  ],
-                ),
+    return Container(
+      height: height * 0.8, // 🔥 80% height
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(28),
+        ),
+      ),
+      child: Column(
+        children: [
+          _buildHandle(),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: ListView(
+                children: [
+                  _buildTextSection(),
+                  const SizedBox(height: 12),
+                  _buildDateTimeRow(context),
+                  const SizedBox(height: 16),
+                  _buildRepeatTypeSelector(),
+                ],
               ),
             ),
+          ),
+          _buildSaveButton(),
+        ],
+      ),
+    );
+  }
 
-            _buildSaveButton(context),
-          ],
+  /* ================= HANDLE ================= */
+
+  Widget _buildHandle() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Container(
+        width: 36,
+        height: 4,
+        decoration: BoxDecoration(
+          color: Colors.grey.shade400,
+          borderRadius: BorderRadius.circular(2),
         ),
       ),
     );
   }
 
-  /* ================= SECTIONS ================= */
+  /* ================= TEXT ================= */
 
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Text(title, style: Theme.of(context).textTheme.titleMedium),
-    );
-  }
-
-  Widget _buildDetailsCard() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            // TITLE LABEL
-            TextField(
-              style: TextStyle(fontSize: 25),
-              decoration: InputDecoration(
-                hintText: 'Title',
-                border: InputBorder.none,
-                isDense: true,
-                contentPadding: EdgeInsets.zero,
-                hintStyle: TextStyle(
-                  color: Color.fromARGB(255, 138, 135, 135),
-                  fontSize: 14,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
+  Widget _buildTextSection() {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: const [
+          TextField(
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+            decoration: InputDecoration(
+              hintText: 'Reminder title',
+              border: InputBorder.none,
+              isDense: true,
+              hintStyle: TextStyle(fontSize: 14, color: Colors.grey),
             ),
-
-            SizedBox(height: 10),
-
-            // DESCRIPTION LABEL
-            TextField(
-              maxLines: 2,
-              style: TextStyle(
-                fontSize: 15,
-                color: Color.fromARGB(255, 148, 145, 145),
+          ),
+          Divider(height: 16),
+          TextField(
+            maxLines: null,
+            style: TextStyle(fontSize: 14),
+            decoration: InputDecoration(
+              hintText: 'Add notes',
+              border: InputBorder.none,
+              isDense: true,
+              hintStyle: TextStyle(
+                fontSize: 13,
+                color: Colors.grey,
                 fontStyle: FontStyle.italic,
               ),
-              decoration: InputDecoration(
-                hintText: 'Notes',
-                border: InputBorder.none,
-                isDense: true,
-                contentPadding: EdgeInsets.zero,
-                hintStyle: TextStyle(
-                  color: Color.fromARGB(255, 138, 135, 135),
-                  fontSize: 14,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildScheduleCard() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: const [
-            Expanded(
-              child: TextField(
-                readOnly: true,
-                decoration: InputDecoration(
-                  labelText: 'Date',
-                  suffixIcon: Icon(Icons.calendar_today),
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-            SizedBox(width: 12),
-            Expanded(
-              child: TextField(
-                readOnly: true,
-                decoration: InputDecoration(
-                  labelText: 'Time',
-                  suffixIcon: Icon(Icons.access_time),
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-          ],
+  /* ================= DATE + TIME ================= */
+
+  Widget _buildDateTimeRow(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: _DateTimePill(
+            icon: Icons.calendar_today,
+            label: selectedDate == null
+                ? 'Date'
+                : _formatDate(selectedDate!),
+            onTap: () async {
+              final picked = await showDatePicker(
+                context: context,
+                initialDate: selectedDate ?? DateTime.now(),
+                firstDate: DateTime(2000),
+                lastDate: DateTime(2100),
+              );
+              if (picked != null) {
+                setState(() => selectedDate = picked);
+              }
+            },
+          ),
         ),
-      ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _DateTimePill(
+            icon: Icons.access_time,
+            label: selectedTime == null
+                ? 'Time'
+                : selectedTime!.format(context),
+            onTap: () async {
+              final picked = await showTimePicker(
+                context: context,
+                initialTime: selectedTime ?? TimeOfDay.now(),
+              );
+              if (picked != null) {
+                setState(() => selectedTime = picked);
+              }
+            },
+          ),
+        ),
+      ],
     );
   }
+
+  /* ================= REPEAT ================= */
 
   Widget _buildRepeatTypeSelector() {
     return SizedBox(
-      height: 48,
+      height: 36,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: reminderTypes.length,
         separatorBuilder: (_, __) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
-          final bool isSelected = selectedTypeIndex == index;
+          final isSelected = selectedTypeIndex == index;
 
           return ChoiceChip(
-            label: Text(reminderTypes[index], style: TextStyle(
-              fontSize: 10
-            ),),
+            label: Text(
+              reminderTypes[index],
+              style: TextStyle(
+                fontSize: 12,
+                color: isSelected ? Colors.white : Colors.black,
+              ),
+            ),
             selected: isSelected,
+            selectedColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: Colors.grey.shade200,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
+              borderRadius: BorderRadius.circular(20),
             ),
             onSelected: (_) {
-              setState(() {
-                selectedTypeIndex = index;
-              });
+              setState(() => selectedTypeIndex = index);
             },
           );
         },
@@ -178,17 +193,69 @@ class _AddReminderScreenState extends State<AddReminderScreen> {
     );
   }
 
-  Widget _buildSaveButton(BuildContext context) {
+  /* ================= SAVE ================= */
+
+  Widget _buildSaveButton() {
+    final canSave = selectedDate != null && selectedTime != null;
+
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       child: SizedBox(
         width: double.infinity,
-        height: 48,
+        height: 46,
         child: ElevatedButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          onPressed: canSave ? () => Navigator.pop(context) : null,
+          style: ElevatedButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
           child: const Text('Save Reminder'),
+        ),
+      ),
+    );
+  }
+
+  String _formatDate(DateTime d) => '${d.day}/${d.month}/${d.year}';
+}
+
+/* ================= DATE/TIME PILL ================= */
+
+class _DateTimePill extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _DateTimePill({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: onTap,
+      child: Container(
+        height: 44,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade100,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 18, color: Colors.grey.shade700),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
         ),
       ),
     );
