@@ -39,36 +39,33 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('RemindMe'),
-      ),
-
+      appBar: AppBar(title: const Text('RemindMe')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: const [
-          SectionTitle(title: 'Today'),
+          SummaryGrid(),
+
+          SizedBox(height: 24),
+
+          SectionTitle(title: 'This Month'),
+
           ReminderCard(
-            title: 'Walk the dog',
-            time: '4:00 PM',
-            subtitle: 'Daily',
+            title: 'Pay Electricity Bill',
+            time: '5 Feb',
+            subtitle: 'One-time',
           ),
-
-          SizedBox(height: 16),
-
-          SectionTitle(title: 'Upcoming'),
           ReminderCard(
-            title: 'Feed the cat',
-            time: '8:00 AM',
-            subtitle: 'Daily',
+            title: 'Doctor Appointment',
+            time: '12 Feb',
+            subtitle: 'One-time',
           ),
           ReminderCard(
             title: 'Friend Birthday',
-            time: '12 Jan 2027',
+            time: '25 Feb',
             subtitle: 'Yearly',
           ),
         ],
       ),
-
       floatingActionButton: FloatingActionButton(
         onPressed: () => _openAddReminder(context),
         child: const Icon(Icons.add),
@@ -120,12 +117,93 @@ class SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: Text(
-        title,
-        style: Theme.of(context).textTheme.titleLarge,
-      ),
+      child: Text(title, style: Theme.of(context).textTheme.titleLarge),
     );
   }
 }
 
 /* ================= ADD REMINDER SCREEN ================= */
+
+class SummaryGrid extends StatelessWidget {
+  const SummaryGrid({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.count(
+      crossAxisCount: 2,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      mainAxisSpacing: 12,
+      crossAxisSpacing: 12,
+      childAspectRatio: 1.6,
+      children: const [
+        SummaryCard(icon: Icons.today, title: 'Today', count: 2),
+        SummaryCard(
+          icon: Icons.calendar_view_week,
+          title: 'This Week',
+          count: 5,
+        ),
+        SummaryCard(icon: Icons.list_alt, title: 'All', count: 12),
+        SummaryCard(
+          icon: Icons.warning_amber_rounded,
+          title: 'Overdue',
+          count: 1,
+          isAlert: true,
+        ),
+      ],
+    );
+  }
+}
+
+class SummaryCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final int count;
+  final bool isAlert;
+
+  const SummaryCard({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.count,
+    this.isAlert = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(15),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  icon,
+                  size: 28,
+                  color: isAlert ? Colors.red : colorScheme.primary,
+                ),
+                const Spacer(),
+                Text(
+              count.toString(),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+            ),
+              ],
+            ),
+
+            const SizedBox(height: 4),
+            
+                Text(title, style: Theme.of(context).textTheme.labelLarge),
+            
+          ],
+        ),
+      ),
+    );
+  }
+}
