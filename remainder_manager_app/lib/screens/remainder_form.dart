@@ -1,10 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class AddReminderSheet extends StatefulWidget {
   const AddReminderSheet({super.key});
 
   @override
   State<AddReminderSheet> createState() => _AddReminderSheetState();
+}
+
+String _formatDate(DateTime date) {
+  return DateFormat('dd MMM yyyy').format(date);
+}
+
+String _formatTime(BuildContext context, TimeOfDay time) {
+  final now = DateTime.now();
+  final dateTime = DateTime(
+    now.year,
+    now.month,
+    now.day,
+    time.hour,
+    time.minute,
+  );
+
+  return DateFormat('hh:mm a').format(dateTime);
 }
 
 class _AddReminderSheetState extends State<AddReminderSheet> {
@@ -28,9 +46,7 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
       height: height * 0.8, // 🔥 80% height
       decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(28),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       child: Column(
         children: [
@@ -41,15 +57,17 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
               child: ListView(
                 children: [
                   _buildTextSection(),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 20),
                   _buildDateTimeRow(context),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
                   _buildRepeatTypeSelector(),
+                  const SizedBox(height: 30),
+
+                  _buildSaveButton(),
                 ],
               ),
             ),
           ),
-          _buildSaveButton(),
         ],
       ),
     );
@@ -120,9 +138,7 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
         Expanded(
           child: _DateTimePill(
             icon: Icons.calendar_today,
-            label: selectedDate == null
-                ? 'Date'
-                : _formatDate(selectedDate!),
+            label: selectedDate == null ? 'Date' : _formatDate(selectedDate!),
             onTap: () async {
               final picked = await showDatePicker(
                 context: context,
@@ -142,7 +158,7 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
             icon: Icons.access_time,
             label: selectedTime == null
                 ? 'Time'
-                : selectedTime!.format(context),
+                : _formatTime(context, selectedTime!),
             onTap: () async {
               final picked = await showTimePicker(
                 context: context,
@@ -171,14 +187,17 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
           final isSelected = selectedTypeIndex == index;
 
           return ChoiceChip(
+            showCheckmark: true,
+            checkmarkColor: Colors.white,
             label: Text(
               reminderTypes[index],
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 10,
                 color: isSelected ? Colors.white : Colors.black,
               ),
             ),
             selected: isSelected,
+
             selectedColor: Theme.of(context).colorScheme.primary,
             backgroundColor: Colors.grey.shade200,
             shape: RoundedRectangleBorder(
@@ -215,8 +234,6 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
       ),
     );
   }
-
-  String _formatDate(DateTime d) => '${d.day}/${d.month}/${d.year}';
 }
 
 /* ================= DATE/TIME PILL ================= */
@@ -250,10 +267,7 @@ class _DateTimePill extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               label,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             ),
           ],
         ),
