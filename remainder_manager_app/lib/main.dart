@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import './screens/remainder_form.dart';
 import './screens/summary_grid.dart';
 import './screens/remainder_card.dart';
-import './utils/section_headings.dart';
+import 'utils/headings/section_headings.dart';
 
 void main() {
   runApp(const ReminderApp());
@@ -45,26 +45,36 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('RemindMe')),
       body: ListView(
         padding: const EdgeInsets.all(16),
-        children: const [
+        children:  [
           SummaryGrid(),
 
           SectionHeading(title: 'This Month'),
 
           ReminderCard(
-            title: 'Pay Electricity Bill',
-            time: '5 Feb',
-            subtitle: 'One-time',
+            title: 'Doctor Appointment',
+            description: 'Health checkup',
+            dateTime: DateTime(2026, 2, 12, 10, 30),
+            type: 'One-time',
           ),
           ReminderCard(
             title: 'Doctor Appointment',
-            time: '12 Feb',
-            subtitle: 'One-time',
+            description: 'Health checkup',
+            dateTime: DateTime(2026, 2, 12, 10, 30),
+            type: 'One-time',
           ),
           ReminderCard(
-            title: 'Friend Birthday',
-            time: '25 Feb',
-            subtitle: 'Yearly',
+            title: 'Doctor Appointment',
+            description: 'Health checkup',
+            dateTime: DateTime(2026, 2, 12, 10, 30),
+            type: 'One-time',
           ),
+          ReminderCard(
+            title: 'Doctor Appointment',
+            description: 'Health checkup',
+            dateTime: DateTime(2026, 2, 12, 10, 30),
+            type: 'One-time',
+          ),
+          
         ],
       ),
       floatingActionButton: FloatingActionButton(

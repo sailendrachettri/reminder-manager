@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import '../utils/date-time/formate_pretty_date.dart';
+import '../utils/date-time/formate_pretty_time.dart';
 
 class AddReminderSheet extends StatefulWidget {
   const AddReminderSheet({super.key});
@@ -8,22 +9,7 @@ class AddReminderSheet extends StatefulWidget {
   State<AddReminderSheet> createState() => _AddReminderSheetState();
 }
 
-String _formatDate(DateTime date) {
-  return DateFormat('dd MMM yyyy').format(date);
-}
 
-String _formatTime(BuildContext context, TimeOfDay time) {
-  final now = DateTime.now();
-  final dateTime = DateTime(
-    now.year,
-    now.month,
-    now.day,
-    time.hour,
-    time.minute,
-  );
-
-  return DateFormat('hh:mm a').format(dateTime);
-}
 
 class _AddReminderSheetState extends State<AddReminderSheet> {
   final List<String> reminderTypes = [
@@ -138,7 +124,7 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
         Expanded(
           child: _DateTimePill(
             icon: Icons.calendar_today,
-            label: selectedDate == null ? 'Date' : _formatDate(selectedDate!),
+            label: selectedDate == null ? 'Date' : selectedDate!.prettyDate,
             onTap: () async {
               final picked = await showDatePicker(
                 context: context,
@@ -158,7 +144,7 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
             icon: Icons.access_time,
             label: selectedTime == null
                 ? 'Time'
-                : _formatTime(context, selectedTime!),
+                : selectedTime!.prettyTime,
             onTap: () async {
               final picked = await showTimePicker(
                 context: context,
