@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import './screens/remainder_form.dart';
 import './screens/summary_grid.dart';
-import './screens/remainder_card.dart';
+// import './screens/remainder_card.dart';
 import 'utils/headings/section_headings.dart';
 import 'theme/app_theme.dart';
+import './utils/empty-state/empty_state.dart';
 
 void main() {
   runApp(const ReminderApp());
@@ -47,36 +48,41 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('RemindMe')),
       body: ListView(
         padding: const EdgeInsets.all(16),
-        children:  [
+        children: [
           SummaryGrid(),
 
           SectionHeading(title: 'This Month'),
 
-          ReminderCard(
-            title: 'SEC Portal Deployment',
-            description: 'Health checkup',
-            dateTime: DateTime(2026, 2, 8, 10, 30),
-            type: 'Weekly',
+          EmptyState(
+            svgPath: 'assets/svgs/global_search.svg',
+            title: 'No reminders yet',
+            subtitle: 'Add one to stay on track',
           ),
-          ReminderCard(
-            title: 'Doctor Appointment',
-            description: 'Health checkup and the treatement of dog and shopping at s mart mall',
-            dateTime: DateTime(2026, 2, 9, 10, 30),
-            type: 'Once',
-          ),
-          ReminderCard(
-            title: 'Doctor Appointment',
-            description: 'Health checkup',
-            dateTime: DateTime(2026, 2, 12, 10, 30),
-            type: 'Monthly',
-          ),
-          ReminderCard(
-            title: 'Doctor Appointment',
-            description: 'Health checkup',
-            dateTime: DateTime(2026, 2, 12, 10, 30),
-            type: 'Yearly',
-          ),
-          
+
+          //   ReminderCard(
+          //     title: 'SEC Portal Deployment',
+          //     description: 'Health checkup',
+          //     dateTime: DateTime(2026, 2, 8, 10, 30),
+          //     type: 'Weekly',
+          //   ),
+          //   ReminderCard(
+          //     title: 'Doctor Appointment',
+          //     description: 'Health checkup and the treatement of dog and shopping at s mart mall',
+          //     dateTime: DateTime(2026, 2, 9, 10, 30),
+          //     type: 'Once',
+          //   ),
+          //   ReminderCard(
+          //     title: 'Doctor Appointment',
+          //     description: 'Health checkup',
+          //     dateTime: DateTime(2026, 2, 12, 10, 30),
+          //     type: 'Monthly',
+          //   ),
+          //   ReminderCard(
+          //     title: 'Doctor Appointment',
+          //     description: 'Health checkup',
+          //     dateTime: DateTime(2026, 2, 12, 10, 30),
+          //     type: 'Yearly',
+          //   ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -86,9 +92,3 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
