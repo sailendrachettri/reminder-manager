@@ -12,9 +12,12 @@ class AppTheme {
 
       cardTheme: CardThemeData(
         elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
+
+      expansionTileTheme: ExpansionTileThemeData(
+        iconColor: AppColors.primary,
+        collapsedIconColor: const Color.fromARGB(255, 61, 84, 103),
       ),
 
       textTheme: const TextTheme(

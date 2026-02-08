@@ -38,14 +38,15 @@ class ReminderCard extends StatelessWidget {
         tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
         childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
 
-        leading: const Icon(
-          Icons.notifications_outlined,
+        leading: Icon(
+          smartDate == 'Today'
+              ? Icons.notifications_on_outlined
+              : Icons.notifications_outlined,
           color: AppColors.primary,
         ),
+
         shape: const RoundedRectangleBorder(),
         collapsedShape: const RoundedRectangleBorder(),
-        iconColor: AppColors.primary,
-        collapsedIconColor: const Color.fromARGB(255, 61, 84, 103),
 
         title: Text(
           title,
