@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:remainder_manager_app/theme/app_colors.dart';
 
 class SummaryGrid extends StatelessWidget {
   const SummaryGrid({super.key});
@@ -61,22 +62,27 @@ class SummaryCard extends StatelessWidget {
                 Icon(
                   icon,
                   size: 28,
-                  color: isAlert ? Colors.red : colorScheme.primary,
+                  color: isAlert
+                      ? Colors.red
+                      : const Color.fromARGB(189, 61, 145, 247),
                 ),
                 const Spacer(),
                 Text(
-              count.toString(),
-              style: Theme.of(
-                context,
-              ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
+                  count.toString(),
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
+                ),
               ],
             ),
 
             const SizedBox(height: 4),
-            
-                Text(title, style: Theme.of(context).textTheme.labelLarge),
-            
+
+            Text(
+              title,
+              style: TextStyle(color: const Color.fromARGB(255, 69, 71, 73)),
+            ),
           ],
         ),
       ),
