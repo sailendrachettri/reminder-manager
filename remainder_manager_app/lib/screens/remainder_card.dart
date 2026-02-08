@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../utils/date-time/formate_pretty_date.dart';
 import '../utils/date-time/formate_pretty_time.dart';
-import '../utils/spacing/app_spacing.dart';
+import '../theme/app_spacing.dart';
 
 class ReminderCard extends StatelessWidget {
   final String title;
@@ -38,12 +38,15 @@ class ReminderCard extends StatelessWidget {
           title,
           style: theme.textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w600,
+            fontSize: 18,
+            color: const Color.fromARGB(255, 57, 61, 66)
           ),
         ),
 
         /// Collapsed view
         subtitle: Row(
           children: [
+            
             Text(
               smartDate == 'Today' ? prettyTime : '$prettyDate • $prettyTime',
               style: theme.textTheme.labelMedium,
@@ -60,7 +63,6 @@ class ReminderCard extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 8),
               child: Text(description, style: theme.textTheme.bodyMedium),
             ),
-          // _TypeChip(type: type),
         ],
       ),
     );
@@ -84,7 +86,7 @@ class _TypeChip extends StatelessWidget {
         type,
         style: Theme.of(
           context,
-        ).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w600),
+        ).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w500, fontSize: 8),
       ),
     );
   }

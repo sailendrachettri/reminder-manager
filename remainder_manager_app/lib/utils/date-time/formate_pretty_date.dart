@@ -1,17 +1,23 @@
 import 'package:intl/intl.dart';
 
-
 /*
-To use: selectedDate!.prettyDate
+Usage:
+date.prettyDate
+date.smartDate
+*/
 
- */
 extension PrettyDate on DateTime {
-  /// 12 Feb 2026
+  /// Mon, 19 Feb  OR  19 Feb 2027
   String get prettyDate {
-    return DateFormat('dd MMM yyyy').format(this);
+    final now = DateTime.now();
+    final isSameYear = year == now.year;
+
+    return DateFormat(
+      isSameYear ? 'EEE, dd MMM' : 'dd MMM yyyy',
+    ).format(this);
   }
 
-  /// Today / Tomorrow / 12 Feb 2026
+  /// Today / Tomorrow / Mon, 19 Feb / 19 Feb 2027
   String get smartDate {
     final today = DateTime.now();
     final tomorrow = today.add(const Duration(days: 1));

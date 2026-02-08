@@ -3,6 +3,7 @@ import './screens/remainder_form.dart';
 import './screens/summary_grid.dart';
 import './screens/remainder_card.dart';
 import 'utils/headings/section_headings.dart';
+import 'theme/app_theme.dart';
 
 void main() {
   runApp(const ReminderApp());
@@ -16,10 +17,11 @@ class ReminderApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Reminder App',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
-        useMaterial3: true,
-      ),
+
+      theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
+      themeMode: ThemeMode.system,
+
       home: const HomeScreen(),
     );
   }
@@ -54,25 +56,25 @@ class HomeScreen extends StatelessWidget {
             title: 'Doctor Appointment',
             description: 'Health checkup',
             dateTime: DateTime(2026, 2, 8, 10, 30),
-            type: 'One-time',
+            type: 'Weekly',
           ),
           ReminderCard(
             title: 'Doctor Appointment',
             description: 'Health checkup and the treatement of dog and shopping at s mart mall',
             dateTime: DateTime(2026, 2, 18, 10, 30),
-            type: 'One-time',
+            type: 'Once',
           ),
           ReminderCard(
             title: 'Doctor Appointment',
             description: 'Health checkup',
             dateTime: DateTime(2026, 2, 12, 10, 30),
-            type: 'One-time',
+            type: 'Monthly',
           ),
           ReminderCard(
             title: 'Doctor Appointment',
             description: 'Health checkup',
             dateTime: DateTime(2026, 2, 12, 10, 30),
-            type: 'One-time',
+            type: 'Yearly',
           ),
           
         ],
