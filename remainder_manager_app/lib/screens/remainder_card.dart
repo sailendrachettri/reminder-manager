@@ -38,9 +38,14 @@ class ReminderCard extends StatelessWidget {
         tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
         childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
 
-        leading: const Icon(Icons.notifications_outlined, color: AppColors.primary,),
+        leading: const Icon(
+          Icons.notifications_outlined,
+          color: AppColors.primary,
+        ),
         shape: const RoundedRectangleBorder(),
         collapsedShape: const RoundedRectangleBorder(),
+        iconColor: AppColors.primary,
+        collapsedIconColor: const Color.fromARGB(255, 61, 84, 103),
 
         title: Text(
           title,
@@ -72,9 +77,12 @@ class ReminderCard extends StatelessWidget {
           if (description.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
-              child: Text(description, style: TextStyle(
-                color: const Color.fromARGB(255, 100, 108, 117)
-              )),
+              child: Text(
+                description,
+                style: TextStyle(
+                  color: const Color.fromARGB(255, 100, 108, 117),
+                ),
+              ),
             ),
         ],
       ),
@@ -98,8 +106,9 @@ class _TypeChip extends StatelessWidget {
       child: Text(
         type,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          fontWeight: FontWeight.w500,
           fontSize: 8,
+          fontStyle: FontStyle.italic,
+          color: const Color.fromARGB(255, 61, 84, 103),
         ),
       ),
     );
