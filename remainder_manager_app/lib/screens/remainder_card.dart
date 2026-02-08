@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../utils/date-time/formate_pretty_date.dart';
 import '../utils/date-time/formate_pretty_time.dart';
+import '../utils/spacing/app_spacing.dart';
 
 class ReminderCard extends StatelessWidget {
   final String title;
@@ -28,10 +29,8 @@ class ReminderCard extends StatelessWidget {
       elevation: 1.5,
       margin: const EdgeInsets.only(bottom: 10),
       child: ExpansionTile(
-        tilePadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-        childrenPadding:
-            const EdgeInsets.fromLTRB(16, 0, 16, 12),
+        tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
 
         leading: const Icon(Icons.notifications_outlined),
 
@@ -43,9 +42,15 @@ class ReminderCard extends StatelessWidget {
         ),
 
         /// Collapsed view
-        subtitle: Text(
-          smartDate == 'Today' ? prettyTime : smartDate,
-          style: theme.textTheme.labelMedium,
+        subtitle: Row(
+          children: [
+            Text(
+              smartDate == 'Today' ? prettyTime : '$prettyDate • $prettyTime',
+              style: theme.textTheme.labelMedium,
+            ),
+             AppSpacing.w12,
+            _TypeChip(type: type),
+          ],
         ),
 
         /// Expanded view
@@ -53,22 +58,9 @@ class ReminderCard extends StatelessWidget {
           if (description.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
-              child: Text(
-                description,
-                style: theme.textTheme.bodyMedium,
-              ),
+              child: Text(description, style: theme.textTheme.bodyMedium),
             ),
-
-          Row(
-            children: [
-              Text(
-                '$prettyDate • $prettyTime',
-                style: theme.textTheme.labelMedium,
-              ),
-              const Spacer(),
-              _TypeChip(type: type),
-            ],
-          ),
+          // _TypeChip(type: type),
         ],
       ),
     );
@@ -90,9 +82,9 @@ class _TypeChip extends StatelessWidget {
       ),
       child: Text(
         type,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+        style: Theme.of(
+          context,
+        ).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w600),
       ),
     );
   }

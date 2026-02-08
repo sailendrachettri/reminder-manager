@@ -53,13 +53,13 @@ class HomeScreen extends StatelessWidget {
           ReminderCard(
             title: 'Doctor Appointment',
             description: 'Health checkup',
-            dateTime: DateTime(2026, 2, 12, 10, 30),
+            dateTime: DateTime(2026, 2, 8, 10, 30),
             type: 'One-time',
           ),
           ReminderCard(
             title: 'Doctor Appointment',
-            description: 'Health checkup',
-            dateTime: DateTime(2026, 2, 12, 10, 30),
+            description: 'Health checkup and the treatement of dog and shopping at s mart mall',
+            dateTime: DateTime(2026, 2, 18, 10, 30),
             type: 'One-time',
           ),
           ReminderCard(
