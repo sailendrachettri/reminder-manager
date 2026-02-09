@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import './screens/remainder_form.dart';
 import './screens/summary_grid.dart';
-// import './screens/remainder_card.dart';
-import 'utils/headings/section_headings.dart';
-import 'theme/app_theme.dart';
+import './screens/remainder_card.dart';
+import './utils/headings/section_headings.dart';
+import './theme/app_theme.dart';
 import './utils/empty-state/empty_state.dart';
+import './utils/filters/remainder_filters.dart';
+import './data/db/reminder_database.dart';
+import './data/models/reminder.dart';
 
 void main() {
   runApp(const ReminderApp());
 }
+
+/* ================= APP ================= */
 
 class ReminderApp extends StatelessWidget {
   const ReminderApp({super.key});
@@ -17,12 +22,10 @@ class ReminderApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Reminder App',
-
+      title: 'RemindMe',
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       themeMode: ThemeMode.system,
-
       home: const HomeScreen(),
     );
   }
@@ -30,16 +33,67 @@ class ReminderApp extends StatelessWidget {
 
 /* ================= HOME SCREEN ================= */
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
-  void _openAddReminder(BuildContext context) {
-    showModalBottomSheet(
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  ReminderFilter selectedFilter = ReminderFilter.todayTomorrow;
+
+  void _onGridTap(ReminderFilter filter) {
+    setState(() => selectedFilter = filter);
+  }
+
+  String get sectionTitle {
+    switch (selectedFilter) {
+      case ReminderFilter.todayTomorrow:
+        return 'Upcoming';
+      case ReminderFilter.today:
+        return 'Today';
+      case ReminderFilter.thisWeek:
+        return 'This Week';
+      case ReminderFilter.overdue:
+        return 'Overdue';
+      case ReminderFilter.all:
+        return 'All Reminders';
+    }
+  }
+
+  List<Reminder> _applyFilter(List<Reminder> reminders) {
+    switch (selectedFilter) {
+      case ReminderFilter.todayTomorrow:
+        return reminders
+            .where((r) => isToday(r.dateTime) || isTomorrow(r.dateTime))
+            .toList();
+
+      case ReminderFilter.today:
+        return reminders.where((r) => isToday(r.dateTime)).toList();
+
+      case ReminderFilter.thisWeek:
+        return reminders.where((r) => isThisWeek(r.dateTime)).toList();
+
+      case ReminderFilter.overdue:
+        return reminders.where((r) => isOverdue(r.dateTime)).toList();
+
+      case ReminderFilter.all:
+        return reminders;
+    }
+  }
+
+  Future<void> _openAddReminder() async {
+    final added = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => const AddReminderSheet(),
     );
+
+    if (added == true) {
+      setState(() {}); // refresh list
+    }
   }
 
   @override
@@ -49,44 +103,45 @@ class HomeScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          SummaryGrid(),
+          SummaryGrid(onSelect: _onGridTap),
 
-          SectionHeading(title: 'This Month'),
+          const SizedBox(height: 12),
 
-          EmptyState(
-            svgPath: 'assets/svgs/global_search.svg',
-            title: 'No reminders yet',
-            subtitle: 'Add one to stay on track',
+          SectionHeading(title: sectionTitle),
+
+          FutureBuilder<List<Reminder>>(
+            future: ReminderDatabase.instance.getAll(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const SizedBox();
+              }
+
+              final filtered = _applyFilter(snapshot.data!);
+
+              if (filtered.isEmpty) {
+                return const EmptyState(
+                  svgPath: 'assets/svgs/global_search.svg',
+                  title: 'No reminders yet',
+                  subtitle: 'Add one to stay on track',
+                );
+              }
+
+              return Column(
+                children: filtered.map((r) {
+                  return ReminderCard(
+                    title: r.title,
+                    description: r.description,
+                    dateTime: r.dateTime,
+                    type: r.type,
+                  );
+                }).toList(),
+              );
+            },
           ),
-
-          //   ReminderCard(
-          //     title: 'SEC Portal Deployment',
-          //     description: 'Health checkup',
-          //     dateTime: DateTime(2026, 2, 8, 10, 30),
-          //     type: 'Weekly',
-          //   ),
-          //   ReminderCard(
-          //     title: 'Doctor Appointment',
-          //     description: 'Health checkup and the treatement of dog and shopping at s mart mall',
-          //     dateTime: DateTime(2026, 2, 9, 10, 30),
-          //     type: 'Once',
-          //   ),
-          //   ReminderCard(
-          //     title: 'Doctor Appointment',
-          //     description: 'Health checkup',
-          //     dateTime: DateTime(2026, 2, 12, 10, 30),
-          //     type: 'Monthly',
-          //   ),
-          //   ReminderCard(
-          //     title: 'Doctor Appointment',
-          //     description: 'Health checkup',
-          //     dateTime: DateTime(2026, 2, 12, 10, 30),
-          //     type: 'Yearly',
-          //   ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _openAddReminder(context),
+        onPressed: _openAddReminder,
         child: const Icon(Icons.add),
       ),
     );

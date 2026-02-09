@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:remainder_manager_app/theme/app_colors.dart';
+import '../utils/filters/remainder_filters.dart';
 
 class SummaryGrid extends StatelessWidget {
-  const SummaryGrid({super.key});
+  final Function(ReminderFilter) onSelect;
+
+  const SummaryGrid({super.key, required this.onSelect});
 
   @override
   Widget build(BuildContext context) {
@@ -13,19 +15,31 @@ class SummaryGrid extends StatelessWidget {
       mainAxisSpacing: 12,
       crossAxisSpacing: 12,
       childAspectRatio: 1.6,
-      children: const [
-        SummaryCard(icon: Icons.today, title: 'Today', count: 2),
+      children: [
+        SummaryCard(
+          icon: Icons.today,
+          title: 'Today',
+          count: 0,
+          onTap: () => onSelect(ReminderFilter.today),
+        ),
         SummaryCard(
           icon: Icons.calendar_view_week,
           title: 'This Week',
-          count: 5,
+          count: 0,
+          onTap: () => onSelect(ReminderFilter.thisWeek),
         ),
-        SummaryCard(icon: Icons.list_alt, title: 'All', count: 12),
+        SummaryCard(
+          icon: Icons.list_alt,
+          title: 'All',
+          count: 0,
+          onTap: () => onSelect(ReminderFilter.all),
+        ),
         SummaryCard(
           icon: Icons.history_outlined,
           title: 'Overdue',
-          count: 1,
+          count: 0,
           isAlert: true,
+          onTap: () => onSelect(ReminderFilter.overdue),
         ),
       ],
     );
@@ -37,52 +51,48 @@ class SummaryCard extends StatelessWidget {
   final String title;
   final int count;
   final bool isAlert;
+  final VoidCallback onTap;
 
   const SummaryCard({
     super.key,
     required this.icon,
     required this.title,
     required this.count,
+    required this.onTap,
     this.isAlert = false,
   });
 
   @override
   Widget build(BuildContext context) {
-
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(15),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  icon,
-                  size: 28,
-                  color: isAlert
-                      ? Colors.red
-                      : const Color.fromARGB(189, 61, 145, 247),
-                ),
-                const Spacer(),
-                Text(
-                  count.toString(),
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Card(
+        elevation: 2,
+        child: Padding(
+          padding: const EdgeInsets.all(15),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(icon,
+                      size: 28,
+                      color: isAlert ? Colors.red : Colors.blue),
+                  const Spacer(),
+                  Text(
+                    count.toString(),
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
                   ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 4),
-
-            Text(
-              title,
-              style: TextStyle(color: const Color.fromARGB(255, 69, 71, 73)),
-            ),
-          ],
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(title),
+            ],
+          ),
         ),
       ),
     );
