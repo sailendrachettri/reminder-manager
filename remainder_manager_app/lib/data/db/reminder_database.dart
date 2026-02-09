@@ -76,21 +76,31 @@ class ReminderDatabase {
     final db = await database;
     final now = DateTime.now();
 
-    final start = now
-        .subtract(Duration(days: now.weekday - 1))
-        .toIso8601String()
-        .split('T')
-        .first;
-    final end = now
-        .add(Duration(days: 7 - now.weekday))
-        .toIso8601String()
-        .split('T')
-        .first;
+    final start = now.subtract(Duration(days: now.weekday - 1));
+    final end = now.add(Duration(days: 7 - now.weekday));
+
+    final startDate =
+        '${start.year}-${start.month.toString().padLeft(2, '0')}-${start.day.toString().padLeft(2, '0')}';
+    final endDate =
+        '${end.year}-${end.month.toString().padLeft(2, '0')}-${end.day.toString().padLeft(2, '0')}';
 
     final res = await db.rawQuery(
-      'SELECT COUNT(*) as c FROM reminders WHERE date BETWEEN ? AND ?',
-      [start, end],
+      '''
+    SELECT COUNT(*) as c
+    FROM reminders
+    WHERE
+      (
+        type = 'Once'
+        AND date BETWEEN ? AND ?
+      )
+      OR
+      (
+        type = 'Weekly'
+      )
+  ''',
+      [startDate, endDate],
     );
+
     return Sqflite.firstIntValue(res) ?? 0;
   }
 

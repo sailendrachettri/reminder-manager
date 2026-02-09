@@ -81,10 +81,25 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Reminder> _applyFilter(List<Reminder> reminders) {
     switch (selectedFilter) {
       case ReminderFilter.todayTomorrow:
-        return reminders.where((r) {
+        final list = reminders.where((r) {
           final d = r.nextOccurrence;
           return isToday(d) || isTomorrow(d);
         }).toList();
+
+        list.sort((a, b) {
+          final da = dateOnly(a.nextOccurrence);
+          final db = dateOnly(b.nextOccurrence);
+
+          // 1️⃣ date first (today before tomorrow)
+          if (da != db) {
+            return da.compareTo(db);
+          }
+
+          // 2️⃣ same date → time
+          return a.nextOccurrence.compareTo(b.nextOccurrence);
+        });
+
+        return list;
 
       case ReminderFilter.today:
         return reminders.where((r) => isToday(r.nextOccurrence)).toList();
