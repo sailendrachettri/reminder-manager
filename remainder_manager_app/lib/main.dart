@@ -65,18 +65,21 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Reminder> _applyFilter(List<Reminder> reminders) {
     switch (selectedFilter) {
       case ReminderFilter.todayTomorrow:
-        return reminders
-            .where((r) => isToday(r.dateTime) || isTomorrow(r.dateTime))
-            .toList();
+        return reminders.where((r) {
+          final d = r.nextOccurrence;
+          return isToday(d) || isTomorrow(d);
+        }).toList();
 
       case ReminderFilter.today:
-        return reminders.where((r) => isToday(r.dateTime)).toList();
+        return reminders.where((r) => isToday(r.nextOccurrence)).toList();
 
       case ReminderFilter.thisWeek:
-        return reminders.where((r) => isThisWeek(r.dateTime)).toList();
+        return reminders.where((r) => isThisWeek(r.nextOccurrence)).toList();
 
       case ReminderFilter.overdue:
-        return reminders.where((r) => isOverdue(r.dateTime)).toList();
+        return reminders
+            .where((r) => r.nextOccurrence.isBefore(DateTime.now()))
+            .toList();
 
       case ReminderFilter.all:
         return reminders;
@@ -116,6 +119,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 return const SizedBox();
               }
 
+              if (!snapshot.hasData) {
+                debugPrint('⏳ Waiting for data...');
+                return const SizedBox();
+              }
+
+              debugPrint('📦 Total reminders: ${snapshot.data!.length}');
+
               final filtered = _applyFilter(snapshot.data!);
 
               if (filtered.isEmpty) {
@@ -131,7 +141,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   return ReminderCard(
                     title: r.title,
                     description: r.description,
-                    dateTime: r.dateTime,
+                    dateTime: r.nextOccurrence, // ✅ FIX
                     type: r.type,
                   );
                 }).toList(),

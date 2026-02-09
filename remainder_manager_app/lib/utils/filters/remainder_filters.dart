@@ -1,28 +1,27 @@
 bool isToday(DateTime dt) {
-  final now = DateTime.now();
-  return dt.year == now.year &&
-      dt.month == now.month &&
-      dt.day == now.day;
+  final today = dateOnly(DateTime.now());
+  return dateOnly(dt) == today;
 }
 
 bool isTomorrow(DateTime dt) {
-  final tomorrow = DateTime.now().add(const Duration(days: 1));
-  return dt.year == tomorrow.year &&
-      dt.month == tomorrow.month &&
-      dt.day == tomorrow.day;
+  final tomorrow = dateOnly(DateTime.now().add(const Duration(days: 1)));
+  return dateOnly(dt) == tomorrow;
 }
 
 bool isThisWeek(DateTime dt) {
-  final now = DateTime.now();
+  final now = dateOnly(DateTime.now());
   final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-  final endOfWeek = startOfWeek.add(const Duration(days: 7));
+  final endOfWeek = startOfWeek.add(const Duration(days: 6));
 
-  return dt.isAfter(startOfWeek) && dt.isBefore(endOfWeek);
+  final d = dateOnly(dt);
+  return !d.isBefore(startOfWeek) && !d.isAfter(endOfWeek);
 }
 
 bool isOverdue(DateTime dt) {
-  return dt.isBefore(DateTime.now());
+  final today = dateOnly(DateTime.now());
+  return dateOnly(dt).isBefore(today);
 }
+
 
 enum ReminderFilter {
   todayTomorrow,
@@ -31,3 +30,7 @@ enum ReminderFilter {
   all,
   overdue,
 }
+
+DateTime dateOnly(DateTime dt) =>
+    DateTime(dt.year, dt.month, dt.day);
+

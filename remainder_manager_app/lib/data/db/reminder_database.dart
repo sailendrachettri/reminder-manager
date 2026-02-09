@@ -19,17 +19,21 @@ class ReminderDatabase {
 
     return openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: (db, version) async {
         await db.execute('''
-          CREATE TABLE reminders (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            description TEXT,
-            dateTime TEXT NOT NULL,
-            type TEXT NOT NULL
-          )
-        ''');
+      CREATE TABLE reminders (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        description TEXT,
+        type TEXT NOT NULL,
+        time TEXT NOT NULL,
+        date TEXT,
+        weekday INTEGER,
+        dayOfMonth INTEGER,
+        month INTEGER
+      )
+    ''');
       },
     );
   }
@@ -41,10 +45,7 @@ class ReminderDatabase {
 
   Future<List<Reminder>> getAll() async {
     final db = await database;
-    final result = await db.query(
-      'reminders',
-      orderBy: 'dateTime ASC',
-    );
+    final result = await db.query('reminders');
 
     return result.map(Reminder.fromMap).toList();
   }
