@@ -42,6 +42,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   ReminderFilter selectedFilter = ReminderFilter.todayTomorrow;
+  int _summaryRefresh = 0;
 
   void _onGridTap(ReminderFilter filter) {
     setState(() => selectedFilter = filter);
@@ -60,6 +61,21 @@ class _HomeScreenState extends State<HomeScreen> {
       case ReminderFilter.all:
         return 'All Reminders';
     }
+  }
+
+  Future<void> _deleteReminder(Reminder r) async {
+    await ReminderDatabase.instance.delete(r.id!);
+    setState(() {
+      _summaryRefresh++; // 🔥 forces SummaryGrid rebuild
+    });
+  }
+
+  Future<void> _completeReminder(Reminder r) async {
+    // for now, completed = delete
+    await ReminderDatabase.instance.delete(r.id!);
+    setState(() {
+      _summaryRefresh++; // 🔥 forces SummaryGrid rebuild
+    });
   }
 
   List<Reminder> _applyFilter(List<Reminder> reminders) {
@@ -95,7 +111,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     if (added == true) {
-      setState(() {}); // refresh list
+      setState(() {
+        _summaryRefresh++; // 🔥 refresh counts + list
+      });
     }
   }
 
@@ -106,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          SummaryGrid(onSelect: _onGridTap),
+          SummaryGrid(key: ValueKey(_summaryRefresh), onSelect: _onGridTap),
 
           const SizedBox(height: 12),
 
@@ -141,8 +159,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   return ReminderCard(
                     title: r.title,
                     description: r.description,
-                    dateTime: r.nextOccurrence, // ✅ FIX
+                    dateTime: r.nextOccurrence,
                     type: r.type,
+                    onDelete: () => _deleteReminder(r),
+                    onComplete: () => _completeReminder(r),
                   );
                 }).toList(),
               );

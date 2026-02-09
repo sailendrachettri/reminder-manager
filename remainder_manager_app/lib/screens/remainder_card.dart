@@ -9,6 +9,8 @@ class ReminderCard extends StatelessWidget {
   final String description;
   final DateTime dateTime;
   final String type;
+  final VoidCallback onDelete;
+  final VoidCallback onComplete;
 
   const ReminderCard({
     super.key,
@@ -16,7 +18,38 @@ class ReminderCard extends StatelessWidget {
     required this.description,
     required this.dateTime,
     required this.type,
+    required this.onDelete,
+    required this.onComplete,
   });
+
+  Future<void> _confirmAction({
+    required BuildContext context,
+    required String title,
+    required String message,
+    required VoidCallback onConfirm,
+  }) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Confirm'),
+          ),
+        ],
+      ),
+    );
+
+    if (result == true) {
+      onConfirm();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,14 +110,53 @@ class ReminderCard extends StatelessWidget {
         children: [
           if (description.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.only(bottom: 12),
               child: Text(
                 description,
-                style: TextStyle(
-                  color: const Color.fromARGB(255, 100, 108, 117),
+                style: const TextStyle(
+                  color: Color.fromARGB(255, 100, 108, 117),
                 ),
               ),
             ),
+
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.delete_outline, color: Colors.red),
+                  label: const Text(
+                    'Delete',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                  onPressed: () {
+                    _confirmAction(
+                      context: context,
+                      title: 'Delete Reminder?',
+                      message:
+                          'This reminder will be permanently deleted. Are you sure?',
+                      onConfirm: onDelete,
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.check_circle_outline),
+                  label: const Text('Completed'),
+                  onPressed: () {
+                    _confirmAction(
+                      context: context,
+                      title: 'Mark as Completed?',
+                      message:
+                          'This reminder will be removed after marking as completed.',
+                      onConfirm: onComplete,
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );

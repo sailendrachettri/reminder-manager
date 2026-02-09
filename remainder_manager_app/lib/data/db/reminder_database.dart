@@ -54,4 +54,60 @@ class ReminderDatabase {
     final db = await database;
     await db.delete('reminders', where: 'id = ?', whereArgs: [id]);
   }
+
+  Future<int> countAll() async {
+    final db = await database;
+    final res = await db.rawQuery('SELECT COUNT(*) as c FROM reminders');
+    return Sqflite.firstIntValue(res) ?? 0;
+  }
+
+  Future<int> countToday() async {
+    final db = await database;
+    final today = DateTime.now().toIso8601String().split('T').first;
+
+    final res = await db.rawQuery(
+      'SELECT COUNT(*) as c FROM reminders WHERE date = ?',
+      [today],
+    );
+    return Sqflite.firstIntValue(res) ?? 0;
+  }
+
+  Future<int> countThisWeek() async {
+    final db = await database;
+    final now = DateTime.now();
+
+    final start = now
+        .subtract(Duration(days: now.weekday - 1))
+        .toIso8601String()
+        .split('T')
+        .first;
+    final end = now
+        .add(Duration(days: 7 - now.weekday))
+        .toIso8601String()
+        .split('T')
+        .first;
+
+    final res = await db.rawQuery(
+      'SELECT COUNT(*) as c FROM reminders WHERE date BETWEEN ? AND ?',
+      [start, end],
+    );
+    return Sqflite.firstIntValue(res) ?? 0;
+  }
+
+  Future<int> countOverdue() async {
+    final db = await database;
+    final rows = await db.query('reminders');
+
+    final now = DateTime.now();
+
+    int count = 0;
+    for (final row in rows) {
+      final reminder = Reminder.fromMap(row);
+      if (reminder.effectiveDateTime.isBefore(now)) {
+        count++;
+      }
+    }
+
+    return count;
+  }
 }

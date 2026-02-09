@@ -18,19 +18,9 @@ bool isThisWeek(DateTime dt) {
 }
 
 bool isOverdue(DateTime dt) {
-  final today = dateOnly(DateTime.now());
-  return dateOnly(dt).isBefore(today);
+  return dt.isBefore(DateTime.now());
 }
 
+enum ReminderFilter { todayTomorrow, today, thisWeek, all, overdue }
 
-enum ReminderFilter {
-  todayTomorrow,
-  today,
-  thisWeek,
-  all,
-  overdue,
-}
-
-DateTime dateOnly(DateTime dt) =>
-    DateTime(dt.year, dt.month, dt.day);
-
+DateTime dateOnly(DateTime dt) => DateTime(dt.year, dt.month, dt.day);
