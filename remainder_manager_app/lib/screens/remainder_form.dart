@@ -18,15 +18,14 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
   int? selectedWeekday; // 1-7
-int? selectedDayOfMonth;
-int? selectedMonth;
+  int? selectedDayOfMonth;
+  int? selectedMonth;
 
-bool get isOnce => selectedTypeIndex == 0;
-bool get isDaily => selectedTypeIndex == 1;
-bool get isWeekly => selectedTypeIndex == 2;
-bool get isMonthly => selectedTypeIndex == 3;
-bool get isYearly => selectedTypeIndex == 4;
-
+  bool get isOnce => selectedTypeIndex == 0;
+  bool get isDaily => selectedTypeIndex == 1;
+  bool get isWeekly => selectedTypeIndex == 2;
+  bool get isMonthly => selectedTypeIndex == 3;
+  bool get isYearly => selectedTypeIndex == 4;
 
   final titleController = TextEditingController();
   final descriptionController = TextEditingController();
@@ -39,34 +38,53 @@ bool get isYearly => selectedTypeIndex == 4;
   }
 
   Future<void> _saveReminder() async {
-  final time = selectedTime!;
-  final timeStr =
-      '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+    final time = selectedTime!;
+    final timeStr =
+        '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
 
-  final reminder = Reminder(
-    title: titleController.text.trim(),
-    description: descriptionController.text.trim(),
-    type: reminderTypes[selectedTypeIndex],
-    time: timeStr,
-    date: isOnce ? selectedDate!.toIso8601String().split('T').first : null,
-    weekday: isWeekly ? selectedWeekday : null,
-    dayOfMonth: isMonthly ? selectedDayOfMonth : null,
-    month: isYearly ? selectedMonth : null,
-  );
+    final reminder = Reminder(
+      title: titleController.text.trim(),
+      description: descriptionController.text.trim(),
+      type: reminderTypes[selectedTypeIndex],
+      time: timeStr,
+      date: isOnce ? selectedDate!.toIso8601String().split('T').first : null,
+      weekday: isWeekly ? selectedWeekday : null,
+      dayOfMonth: isMonthly ? selectedDayOfMonth : null,
+      month: isYearly ? selectedMonth : null,
+    );
 
-  await ReminderDatabase.instance.insert(reminder);
-  Navigator.pop(context, true);
-}
+    await ReminderDatabase.instance.insert(reminder);
+    Navigator.pop(context, true);
+  }
 
+  bool get canSave {
+    if (titleController.text.trim().isEmpty) return false;
+    if (selectedTime == null) return false;
+
+    if (isOnce) {
+      return selectedDate != null;
+    }
+
+    if (isWeekly) {
+      return selectedWeekday != null;
+    }
+
+    if (isMonthly) {
+      return selectedDayOfMonth != null;
+    }
+
+    if (isYearly) {
+      return selectedMonth != null && selectedDayOfMonth != null;
+    }
+
+    // Daily
+    return true;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final canSave = selectedDate != null &&
-        selectedTime != null &&
-        titleController.text.isNotEmpty;
-
     return Container(
-      height: MediaQuery.of(context).size.height * 0.8,
+      height: MediaQuery.of(context).size.height * 0.9,
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
@@ -144,93 +162,113 @@ bool get isYearly => selectedTypeIndex == 4;
   }
 
   Widget _buildDynamicInputs(BuildContext context) {
-  return Column(
-    children: [
-      // TIME (always required)
-      _DateTimePill(
-        icon: Icons.access_time,
-        label: selectedTime?.prettyTime ?? 'Time',
-        onTap: () async {
-          final picked = await showTimePicker(
-            context: context,
-            initialTime: TimeOfDay.now(),
-          );
-          if (picked != null) setState(() => selectedTime = picked);
-        },
-      ),
-
-      if (isOnce) ...[
-        const SizedBox(height: 10),
+    return Column(
+      children: [
+        // TIME (always required)
         _DateTimePill(
-          icon: Icons.calendar_today,
-          label: selectedDate?.prettyDate ?? 'Date',
+          icon: Icons.access_time,
+          label: selectedTime?.prettyTime ?? 'Time',
           onTap: () async {
-            final picked = await showDatePicker(
+            final picked = await showTimePicker(
               context: context,
-              initialDate: DateTime.now(),
-              firstDate: DateTime(2000),
-              lastDate: DateTime(2100),
+              initialTime: TimeOfDay.now(),
             );
-            if (picked != null) setState(() => selectedDate = picked);
+            if (picked != null) setState(() => selectedTime = picked);
           },
         ),
-      ],
 
-      if (isWeekly) ...[
-        const SizedBox(height: 10),
-        DropdownButtonFormField<int>(
-          value: selectedWeekday,
-          hint: const Text('Select weekday'),
-          items: List.generate(7, (i) {
-            return DropdownMenuItem(
-              value: i + 1,
-              child: Text(
-                ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i],
-              ),
-            );
-          }),
-          onChanged: (v) => setState(() => selectedWeekday = v),
-        ),
-      ],
+        if (isOnce) ...[
+          const SizedBox(height: 10),
+          _DateTimePill(
+            icon: Icons.calendar_today,
+            label: selectedDate?.prettyDate ?? 'Date',
+            onTap: () async {
+              final picked = await showDatePicker(
+                context: context,
+                initialDate: DateTime.now(),
+                firstDate: DateTime(2000),
+                lastDate: DateTime(2100),
+              );
+              if (picked != null) setState(() => selectedDate = picked);
+            },
+          ),
+        ],
 
-      if (isMonthly) ...[
-        const SizedBox(height: 10),
-        DropdownButtonFormField<int>(
-          value: selectedDayOfMonth,
-          hint: const Text('Day of month'),
-          items: List.generate(31, (i) {
-            return DropdownMenuItem(
-              value: i + 1,
-              child: Text('${i + 1}'),
-            );
-          }),
-          onChanged: (v) => setState(() => selectedDayOfMonth = v),
-        ),
-      ],
+        if (isWeekly) ...[
+          const SizedBox(height: 10),
+          DropdownButtonFormField<int>(
+            value: selectedWeekday,
+            hint: const Text('Select weekday'),
+            items: List.generate(7, (i) {
+              return DropdownMenuItem(
+                value: i + 1,
+                child: Text(
+                  ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i],
+                ),
+              );
+            }),
+            onChanged: (v) => setState(() => selectedWeekday = v),
+          ),
+        ],
 
-      if (isYearly) ...[
-        const SizedBox(height: 10),
-        DropdownButtonFormField<int>(
-          value: selectedMonth,
-          hint: const Text('Month'),
-          items: List.generate(12, (i) {
-            return DropdownMenuItem(
-              value: i + 1,
-              child: Text(
-                [
-                  'Jan','Feb','Mar','Apr','May','Jun',
-                  'Jul','Aug','Sep','Oct','Nov','Dec'
-                ][i],
-              ),
-            );
-          }),
-          onChanged: (v) => setState(() => selectedMonth = v),
-        ),
-      ],
-    ],
-  );
-}
+        if (isMonthly) ...[
+          const SizedBox(height: 10),
+          DropdownButtonFormField<int>(
+            value: selectedDayOfMonth,
+            hint: const Text('Day of month'),
+            items: List.generate(31, (i) {
+              return DropdownMenuItem(value: i + 1, child: Text('${i + 1}'));
+            }),
+            onChanged: (v) => setState(() => selectedDayOfMonth = v),
+          ),
+        ],
 
+        if (isYearly) ...[
+          const SizedBox(height: 10),
+
+          // MONTH
+          DropdownButtonFormField<int>(
+            value: selectedMonth,
+            hint: const Text('Month'),
+            items: List.generate(12, (i) {
+              return DropdownMenuItem(
+                value: i + 1,
+                child: Text(
+                  [
+                    'Jan',
+                    'Feb',
+                    'Mar',
+                    'Apr',
+                    'May',
+                    'Jun',
+                    'Jul',
+                    'Aug',
+                    'Sep',
+                    'Oct',
+                    'Nov',
+                    'Dec',
+                  ][i],
+                ),
+              );
+            }),
+            onChanged: (v) => setState(() => selectedMonth = v),
+          ),
+
+          const SizedBox(height: 10),
+
+          // DAY OF MONTH
+          DropdownButtonFormField<int>(
+            value: selectedDayOfMonth,
+            hint: const Text('Day of month'),
+            items: List.generate(31, (i) {
+              return DropdownMenuItem(value: i + 1, child: Text('${i + 1}'));
+            }),
+            onChanged: (v) => setState(() => selectedDayOfMonth = v),
+          ),
+        ],
+      ],
+    );
+  }
 
   Widget _buildRepeatTypeSelector() {
     return SizedBox(
@@ -243,7 +281,17 @@ bool get isYearly => selectedTypeIndex == 4;
           return ChoiceChip(
             label: Text(reminderTypes[index]),
             selected: selectedTypeIndex == index,
-            onSelected: (_) => setState(() => selectedTypeIndex = index),
+            onSelected: (_) {
+              setState(() {
+                selectedTypeIndex = index;
+
+                // IMPORTANT reset
+                selectedDate = null;
+                selectedWeekday = null;
+                selectedDayOfMonth = null;
+                selectedMonth = null;
+              });
+            },
           );
         },
       ),

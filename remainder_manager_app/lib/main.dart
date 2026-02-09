@@ -119,12 +119,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 return const SizedBox();
               }
 
-              if (!snapshot.hasData) {
-                debugPrint('⏳ Waiting for data...');
-                return const SizedBox();
-              }
+              // if (!snapshot.hasData) {
+              //   debugPrint('⏳ Waiting for data...');
+              //   return const SizedBox();
+              // }
 
-              debugPrint('📦 Total reminders: ${snapshot.data!.length}');
+              // debugPrint('📦 Total reminders: ${snapshot.data!.length}');
 
               final filtered = _applyFilter(snapshot.data!);
 
