@@ -5,6 +5,20 @@ class AppTheme {
   static ThemeData light() {
     return ThemeData(
       useMaterial3: true,
+
+      appBarTheme: const AppBarTheme(
+        toolbarHeight: 38,
+        centerTitle: false,
+        titleTextStyle: TextStyle(
+          
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.4,
+          color: AppColors.primary
+        ),
+      ),
+
+
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.primary,
         brightness: Brightness.light,

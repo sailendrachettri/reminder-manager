@@ -9,6 +9,7 @@ import './utils/filters/remainder_filters.dart';
 import './data/db/reminder_database.dart';
 import './data/models/reminder.dart';
 import './utils/filters/sort_by_date_time.dart';
+import './utils/greetings/greeting.dart';
 
 void main() {
   runApp(const ReminderApp());
@@ -44,9 +45,21 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   ReminderFilter selectedFilter = ReminderFilter.todayTomorrow;
   int _summaryRefresh = 0;
+  bool _showGreeting = true;
 
   void _onGridTap(ReminderFilter filter) {
     setState(() => selectedFilter = filter);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    Future.delayed(const Duration(seconds: 5), () {
+      if (mounted) {
+        setState(() => _showGreeting = false);
+      }
+    });
   }
 
   String get sectionTitle {
@@ -67,15 +80,15 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _deleteReminder(Reminder r) async {
     await ReminderDatabase.instance.delete(r.id!);
     setState(() {
-      _summaryRefresh++; // 🔥 forces SummaryGrid rebuild
+      _summaryRefresh++; 
     });
   }
 
   Future<void> _completeReminder(Reminder r) async {
-    // for now, completed = delete
+    
     await ReminderDatabase.instance.delete(r.id!);
     setState(() {
-      _summaryRefresh++; // 🔥 forces SummaryGrid rebuild
+      _summaryRefresh++; 
     });
   }
 
@@ -91,12 +104,12 @@ class _HomeScreenState extends State<HomeScreen> {
           final da = dateOnly(a.nextOccurrence);
           final db = dateOnly(b.nextOccurrence);
 
-          // 1️⃣ date first (today before tomorrow)
+          
           if (da != db) {
             return da.compareTo(db);
           }
 
-          // 2️⃣ same date → time
+          
           return a.nextOccurrence.compareTo(b.nextOccurrence);
         });
 
@@ -142,7 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (added == true) {
       setState(() {
-        _summaryRefresh++; // 🔥 refresh counts + list
+        _summaryRefresh++; 
       });
     }
   }
@@ -150,7 +163,23 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('RemindMe')),
+      appBar: AppBar(
+        automaticallyImplyLeading: false, 
+        titleSpacing: 0,
+        title: SizedBox(
+          width: 160, 
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 700),
+            transitionBuilder: (child, animation) =>
+                FadeTransition(opacity: animation, child: child),
+            child: Text(
+              _showGreeting ? getGreeting() : 'RemindMe',
+              key: ValueKey(_showGreeting),
+            ),
+          ),
+        ),
+      ),
+
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -167,12 +196,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 return const SizedBox();
               }
 
-              // if (!snapshot.hasData) {
-              //   debugPrint('⏳ Waiting for data...');
-              //   return const SizedBox();
-              // }
+              
+              
+              
+              
 
-              // debugPrint('📦 Total reminders: ${snapshot.data!.length}');
+              
 
               final filtered = _applyFilter(snapshot.data!);
 
