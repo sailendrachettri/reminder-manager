@@ -8,6 +8,7 @@ import './utils/empty-state/empty_state.dart';
 import './utils/filters/remainder_filters.dart';
 import './data/db/reminder_database.dart';
 import './data/models/reminder.dart';
+import './utils/filters/sort_by_date_time.dart';
 
 void main() {
   runApp(const ReminderApp());
@@ -102,18 +103,32 @@ class _HomeScreenState extends State<HomeScreen> {
         return list;
 
       case ReminderFilter.today:
-        return reminders.where((r) => isToday(r.nextOccurrence)).toList();
+        final list = reminders.where((r) => isToday(r.nextOccurrence)).toList();
+
+        sortByDateThenTime(list);
+        return list;
 
       case ReminderFilter.thisWeek:
-        return reminders.where((r) => isThisWeek(r.nextOccurrence)).toList();
+        final list = reminders
+            .where((r) => isThisWeek(r.nextOccurrence))
+            .toList();
+
+        sortByDateThenTime(list);
+        return list;
 
       case ReminderFilter.overdue:
-        return reminders
+        final list = reminders
             .where((r) => r.nextOccurrence.isBefore(DateTime.now()))
             .toList();
 
+        sortByDateThenTime(list);
+        return list;
+
       case ReminderFilter.all:
-        return reminders;
+        final list = List<Reminder>.from(reminders);
+
+        sortByDateThenTime(list);
+        return list;
     }
   }
 
