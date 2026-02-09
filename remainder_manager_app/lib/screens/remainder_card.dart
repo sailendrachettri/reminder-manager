@@ -122,7 +122,7 @@ class ReminderCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: OutlinedButton.icon(
+                child: ElevatedButton.icon(
                   icon: const Icon(Icons.delete_outline, color: Colors.red),
                   label: const Text(
                     'Delete',
