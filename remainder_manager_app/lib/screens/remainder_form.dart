@@ -306,6 +306,7 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
             label: Text(reminderTypes[index]),
             selected: selectedTypeIndex == index,
             onSelected: (_) {
+              FocusScope.of(context).unfocus();
               setState(() {
                 selectedTypeIndex = index;
 
