@@ -196,30 +196,43 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
 
         if (isWeekly) ...[
           const SizedBox(height: 10),
-          DropdownButtonFormField<int>(
-            value: selectedWeekday,
-            hint: const Text('Select weekday'),
-            items: List.generate(7, (i) {
-              return DropdownMenuItem(
-                value: i + 1,
-                child: Text(
-                  ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i],
-                ),
-              );
-            }),
-            onChanged: (v) => setState(() => selectedWeekday = v),
+          _InputCard(
+            child: DropdownButtonFormField<int>(
+              value: selectedWeekday,
+              isDense: true,
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                hintText: 'Select weekday',
+              ),
+              icon: const Icon(Icons.keyboard_arrow_down),
+              items: List.generate(7, (i) {
+                return DropdownMenuItem(
+                  value: i + 1,
+                  child: Text(
+                    ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i],
+                  ),
+                );
+              }),
+              onChanged: (v) => setState(() => selectedWeekday = v),
+            ),
           ),
         ],
 
         if (isMonthly) ...[
           const SizedBox(height: 10),
-          DropdownButtonFormField<int>(
-            value: selectedDayOfMonth,
-            hint: const Text('Day of month'),
-            items: List.generate(31, (i) {
-              return DropdownMenuItem(value: i + 1, child: Text('${i + 1}'));
-            }),
-            onChanged: (v) => setState(() => selectedDayOfMonth = v),
+          _InputCard(
+            child: DropdownButtonFormField<int>(
+              value: selectedDayOfMonth,
+              isDense: true,
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                hintText: 'Day of month',
+              ),
+              items: List.generate(31, (i) {
+                return DropdownMenuItem(value: i + 1, child: Text('${i + 1}'));
+              }),
+              onChanged: (v) => setState(() => selectedDayOfMonth = v),
+            ),
           ),
         ],
 
@@ -227,43 +240,54 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
           const SizedBox(height: 10),
 
           // MONTH
-          DropdownButtonFormField<int>(
-            value: selectedMonth,
-            hint: const Text('Month'),
-            items: List.generate(12, (i) {
-              return DropdownMenuItem(
-                value: i + 1,
-                child: Text(
-                  [
-                    'Jan',
-                    'Feb',
-                    'Mar',
-                    'Apr',
-                    'May',
-                    'Jun',
-                    'Jul',
-                    'Aug',
-                    'Sep',
-                    'Oct',
-                    'Nov',
-                    'Dec',
-                  ][i],
-                ),
-              );
-            }),
-            onChanged: (v) => setState(() => selectedMonth = v),
+          _InputCard(
+            child: DropdownButtonFormField<int>(
+              value: selectedMonth,
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                hintText: 'Month',
+              ),
+              items: List.generate(12, (i) {
+                return DropdownMenuItem(
+                  value: i + 1,
+                  child: Text(
+                    [
+                      'Jan',
+                      'Feb',
+                      'Mar',
+                      'Apr',
+                      'May',
+                      'Jun',
+                      'Jul',
+                      'Aug',
+                      'Sep',
+                      'Oct',
+                      'Nov',
+                      'Dec',
+                    ][i],
+                  ),
+                );
+              }),
+              onChanged: (v) => setState(() => selectedMonth = v),
+            ),
           ),
 
           const SizedBox(height: 10),
 
           // DAY OF MONTH
-          DropdownButtonFormField<int>(
-            value: selectedDayOfMonth,
-            hint: const Text('Day of month'),
-            items: List.generate(31, (i) {
-              return DropdownMenuItem(value: i + 1, child: Text('${i + 1}'));
-            }),
-            onChanged: (v) => setState(() => selectedDayOfMonth = v),
+          _InputCard(
+            child: DropdownButtonFormField<int>(
+              value: selectedDayOfMonth,
+              isDense: true,
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                hintText: 'Day of month',
+              ),
+              items: List.generate(31, (i) {
+                return DropdownMenuItem(value: i + 1, child: Text('${i + 1}'));
+              }),
+              onChanged: (v) => setState(() => selectedDayOfMonth = v),
+            ),
           ),
         ],
       ],
@@ -333,3 +357,29 @@ class _DateTimePill extends StatelessWidget {
     );
   }
 }
+
+class _InputCard extends StatelessWidget {
+  final Widget child;
+  final EdgeInsetsGeometry margin;
+  final EdgeInsetsGeometry padding;
+
+  const _InputCard({
+    required this.child,
+    this.margin = const EdgeInsets.symmetric(vertical: 6),
+    this.padding = const EdgeInsets.symmetric(horizontal: 12),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: margin,
+      padding: padding,
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: child,
+    );
+  }
+}
+
