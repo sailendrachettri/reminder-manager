@@ -105,7 +105,10 @@ class _AlarmScreenState extends State<AlarmScreen>
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color.fromARGB(255, 52, 101, 161), Color.fromARGB(255, 52, 101, 161)],
+                colors: [
+                  Color.fromARGB(255, 52, 101, 161),
+                  Color.fromARGB(255, 52, 101, 161),
+                ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
@@ -122,30 +125,49 @@ class _AlarmScreenState extends State<AlarmScreen>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const SizedBox(height: 60),
+                const SizedBox(height: 1),
 
-                /// Alarm Text (iOS Call Look)
-                Column(
-                  children: [
-                    Text(
-                      widget.title,
-                      style: const TextStyle(
-                        fontSize: 34,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    children: [
+                      /// Icon / Alarm glyph
+                      // Container(
+                      //   width: 88,
+                      //   height: 88,
+                      //   decoration: BoxDecoration(
+                      //     shape: BoxShape.circle,
+                      //     color: Colors.white.withOpacity(0.15),
+                      //   ),
+                      //   child: const Icon(
+                      //     Icons.alarm_rounded,
+                      //     size: 62,
+                      //     color: Colors.white,
+                      //   ),
+                      // ),
+
+                      // const SizedBox(height: 22),
+
+                      Text(
+                        widget.title,
+                        style: const TextStyle(
+                          fontSize: 34,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      widget.description,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        color: Colors.white70,
+                      const SizedBox(height: 10),
+                      Text(
+                        widget.description,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          color: Colors.white70,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
 
                 /// Bottom Slider
@@ -212,7 +234,7 @@ class _AlarmScreenState extends State<AlarmScreen>
                     ],
                   ),
                   child: const Icon(
-                    Icons.keyboard_double_arrow_right ,
+                    Icons.keyboard_double_arrow_right,
                     size: 32,
                     color: AppColors.primary,
                   ),
