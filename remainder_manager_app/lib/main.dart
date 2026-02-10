@@ -10,8 +10,23 @@ import './data/db/reminder_database.dart';
 import './data/models/reminder.dart';
 import './utils/filters/sort_by_date_time.dart';
 import './utils/greetings/greeting.dart';
+import './notifications/alarm_style/alarm_screen.dart';
+import 'package:permission_handler/permission_handler.dart';
+import './notifications/alarm_style/notification_alarm.dart';
+import 'dart:io';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Request notification permission on Android 13+
+  if (Platform.isAndroid) {
+    final status = await Permission.notification.request();
+    if (!status.isGranted) {
+      print("⚠️ Notification permission denied!");
+    }
+  }
+
+  await NotificationService.init();
+
   runApp(const ReminderApp());
 }
 
@@ -51,6 +66,23 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() => selectedFilter = filter);
   }
 
+  Future<void> _demoAlarm() async {
+    if (!mounted) return;
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const AlarmScreen(
+          title: "Demo Alarm",
+          description: "This is your 10-second demo alarm",
+        ),
+      ),
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('⏰ Demo alarm is showing now!')),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -80,15 +112,14 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _deleteReminder(Reminder r) async {
     await ReminderDatabase.instance.delete(r.id!);
     setState(() {
-      _summaryRefresh++; 
+      _summaryRefresh++;
     });
   }
 
   Future<void> _completeReminder(Reminder r) async {
-    
     await ReminderDatabase.instance.delete(r.id!);
     setState(() {
-      _summaryRefresh++; 
+      _summaryRefresh++;
     });
   }
 
@@ -104,12 +135,10 @@ class _HomeScreenState extends State<HomeScreen> {
           final da = dateOnly(a.nextOccurrence);
           final db = dateOnly(b.nextOccurrence);
 
-          
           if (da != db) {
             return da.compareTo(db);
           }
 
-          
           return a.nextOccurrence.compareTo(b.nextOccurrence);
         });
 
@@ -155,7 +184,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (added == true) {
       setState(() {
-        _summaryRefresh++; 
+        _summaryRefresh++;
       });
     }
   }
@@ -164,10 +193,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false, 
+        automaticallyImplyLeading: false,
         titleSpacing: 0,
         title: SizedBox(
-          width: 160, 
+          width: 160,
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 700),
             transitionBuilder: (child, animation) =>
@@ -178,6 +207,13 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.alarm),
+            onPressed: _demoAlarm,
+            tooltip: 'Demo Alarm',
+          ),
+        ],
       ),
 
       body: ListView(
@@ -195,13 +231,6 @@ class _HomeScreenState extends State<HomeScreen> {
               if (!snapshot.hasData) {
                 return const SizedBox();
               }
-
-              
-              
-              
-              
-
-              
 
               final filtered = _applyFilter(snapshot.data!);
 
