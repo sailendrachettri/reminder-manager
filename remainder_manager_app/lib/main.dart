@@ -67,21 +67,24 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _demoAlarm() async {
-    if (!mounted) return;
+  if (!mounted) return;
 
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const AlarmScreen(
-          title: "Demo Alarm",
-          description: "This is your 10-second demo alarm",
-        ),
+  // Pick a reminder from DB (demo: first reminder)
+  final reminders = await ReminderDatabase.instance.getAll();
+  final reminder = reminders.isNotEmpty
+      ? reminders.first
+      : null;
+
+  Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (_) => AlarmScreen(
+        title: reminder?.title ?? "Demo Alarm",
+        description: reminder?.description ?? "This is your demo alarm.",
       ),
-    );
+    ),
+  );
+}
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('⏰ Demo alarm is showing now!')),
-    );
-  }
 
   @override
   void initState() {
