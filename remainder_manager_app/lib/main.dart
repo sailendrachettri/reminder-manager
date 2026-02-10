@@ -20,32 +20,34 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Request permissions
   if (Platform.isAndroid) {
     await Permission.notification.request();
     await Permission.scheduleExactAlarm.request();
   }
-  
+
   // Initialize notifications
   await NotificationService.init();
-  
+
   // Set up the callback to show alarm screen when notification triggers
-  NotificationService.onAlarmTrigger = (String title, String description) {
-    print('🚀 Opening alarm screen: $title');
-    
-    // Use the global navigator key to navigate even when app is in background
+  NotificationService
+      .onAlarmTrigger = (int reminderId, String title, String description) {
     navigatorKey.currentState?.push(
       MaterialPageRoute(
-        builder: (context) => AlarmScreen(
+        fullscreenDialog: true,
+        builder: (_) => AlarmScreen(
           title: title,
           description: description,
+          onDismiss: () async {
+            await NotificationService.cancelReminderNotification(reminderId);
+            await ReminderDatabase.instance.delete(reminderId);
+          },
         ),
-        fullscreenDialog: true,
       ),
     );
   };
-  
+
   runApp(const ReminderApp());
 }
 
@@ -86,15 +88,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _demoAlarm() async {
     if (!mounted) return;
-    
+
     final reminders = await ReminderDatabase.instance.getAll();
     final reminder = reminders.isNotEmpty ? reminders.first : null;
-    
+
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => AlarmScreen(
           title: reminder?.title ?? "Demo Alarm",
           description: reminder?.description ?? "This is your demo alarm.",
+          onDismiss: () {
+            if (reminder != null) {
+              _completeReminder(reminder);
+            }
+          },
         ),
       ),
     );
@@ -129,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (r.id != null) {
       await NotificationService.cancelReminderNotification(r.id!);
     }
-    
+
     await ReminderDatabase.instance.delete(r.id!);
     setState(() {
       _summaryRefresh++;
@@ -140,7 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (r.id != null) {
       await NotificationService.cancelReminderNotification(r.id!);
     }
-    
+
     await ReminderDatabase.instance.delete(r.id!);
     setState(() {
       _summaryRefresh++;
@@ -163,26 +170,26 @@ class _HomeScreenState extends State<HomeScreen> {
           return a.nextOccurrence.compareTo(b.nextOccurrence);
         });
         return list;
-        
+
       case ReminderFilter.today:
         final list = reminders.where((r) => isToday(r.nextOccurrence)).toList();
         sortByDateThenTime(list);
         return list;
-        
+
       case ReminderFilter.thisWeek:
         final list = reminders
             .where((r) => isThisWeek(r.nextOccurrence))
             .toList();
         sortByDateThenTime(list);
         return list;
-        
+
       case ReminderFilter.overdue:
         final list = reminders
             .where((r) => r.nextOccurrence.isBefore(DateTime.now()))
             .toList();
         sortByDateThenTime(list);
         return list;
-        
+
       case ReminderFilter.all:
         final list = List<Reminder>.from(reminders);
         sortByDateThenTime(list);
@@ -197,7 +204,7 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.transparent,
       builder: (_) => const AddReminderSheet(),
     );
-    
+
     if (added == true) {
       setState(() {
         _summaryRefresh++;
@@ -243,9 +250,9 @@ class _HomeScreenState extends State<HomeScreen> {
               if (!snapshot.hasData) {
                 return const SizedBox();
               }
-              
+
               final filtered = _applyFilter(snapshot.data!);
-              
+
               if (filtered.isEmpty) {
                 return const EmptyState(
                   svgPath: 'assets/svgs/global_search.svg',
@@ -253,7 +260,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   subtitle: 'Add one to stay on track',
                 );
               }
-              
+
               return Column(
                 children: filtered.map((r) {
                   return ReminderCard(
@@ -273,9 +280,7 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: _openAddReminder,
         child: const Icon(Icons.add),
-        
       ),
-      
     );
   }
 }

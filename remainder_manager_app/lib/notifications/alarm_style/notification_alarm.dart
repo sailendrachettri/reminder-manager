@@ -13,7 +13,8 @@ class NotificationService {
   static final Map<int, Map<String, String>> _reminderData = {};
 
   // Callback to navigate to alarm screen
-  static Function(String title, String description)? onAlarmTrigger;
+  static Function(int reminderId, String title, String description)?
+  onAlarmTrigger;
 
   static Future<void> init() async {
     tz.initializeTimeZones();
@@ -40,19 +41,20 @@ class NotificationService {
   @pragma('vm:entry-point')
   static void _handleNotificationTap(NotificationResponse response) {
     print('🔔 Notification tapped/triggered: ${response.payload}');
-    
+
     if (response.payload != null) {
       try {
         final parts = response.payload!.split('|||');
-        if (parts.length >= 2) {
-          final title = parts[0];
-          final description = parts[1];
-          
-          print('📱 Triggering alarm screen: $title');
-          
-          // Call the callback to show alarm screen
+
+        if (parts.length >= 3) {
+          final reminderId = int.parse(parts[0]);
+          final title = parts[1];
+          final description = parts[2];
+
+          print('📱 Triggering alarm screen for ID: $reminderId');
+
           if (onAlarmTrigger != null) {
-            onAlarmTrigger!(title, description);
+            onAlarmTrigger!(reminderId, title, description);
           }
         }
       } catch (e) {
@@ -65,12 +67,12 @@ class NotificationService {
   static Future<bool> _requestExactAlarmPermission() async {
     if (Platform.isAndroid) {
       final status = await Permission.scheduleExactAlarm.status;
-      
+
       if (status.isDenied) {
         final result = await Permission.scheduleExactAlarm.request();
         return result.isGranted;
       }
-      
+
       return status.isGranted;
     }
     return true;
@@ -93,14 +95,18 @@ class NotificationService {
     // Check exact alarm permission
     final hasPermission = await hasExactAlarmPermission();
     if (!hasPermission) {
-      throw Exception('Exact alarm permission not granted. Please enable it in Settings.');
+      throw Exception(
+        'Exact alarm permission not granted. Please enable it in Settings.',
+      );
     }
 
     final DateTime scheduledDateTime = reminder.nextOccurrence;
-    
+
     // Don't schedule if the time has already passed
     if (scheduledDateTime.isBefore(DateTime.now())) {
-      print('⚠️ Skipping notification - time has already passed: $scheduledDateTime');
+      print(
+        '⚠️ Skipping notification - time has already passed: $scheduledDateTime',
+      );
       return;
     }
 
@@ -111,7 +117,8 @@ class NotificationService {
     };
 
     // Create payload with title and description
-    final payload = '${reminder.title}|||${reminder.description}';
+    final payload =
+        '${reminder.id}|||${reminder.title}|||${reminder.description}';
 
     const AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails(
@@ -185,7 +192,9 @@ class NotificationService {
       await _notifications.zonedSchedule(
         reminder.id!,
         '⏰ ${reminder.title}',
-        reminder.description.isEmpty ? '${reminder.type} Reminder' : reminder.description,
+        reminder.description.isEmpty
+            ? '${reminder.type} Reminder'
+            : reminder.description,
         scheduledDate,
         details,
         payload: payload,
@@ -213,7 +222,8 @@ class NotificationService {
   }
 
   /// Get list of pending notifications (for debugging)
-  static Future<List<PendingNotificationRequest>> getPendingNotifications() async {
+  static Future<List<PendingNotificationRequest>>
+  getPendingNotifications() async {
     return await _notifications.pendingNotificationRequests();
   }
 
