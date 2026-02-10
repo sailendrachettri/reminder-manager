@@ -3,6 +3,7 @@ import '../data/models/reminder.dart';
 import '../data/db/reminder_database.dart';
 import '../utils/date-time/formate_pretty_date.dart';
 import '../utils/date-time/formate_pretty_time.dart';
+import '../notifications/alarm_style/notification_alarm.dart';
 
 class AddReminderSheet extends StatefulWidget {
   const AddReminderSheet({super.key});
@@ -53,8 +54,48 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
       month: isYearly ? selectedMonth : null,
     );
 
-    await ReminderDatabase.instance.insert(reminder);
-    Navigator.pop(context, true);
+    // Save to database
+    final id = await ReminderDatabase.instance.insert(reminder);
+    
+    // Create reminder with ID for scheduling
+    final reminderWithId = Reminder(
+      id: id,
+      title: reminder.title,
+      description: reminder.description,
+      type: reminder.type,
+      time: reminder.time,
+      date: reminder.date,
+      weekday: reminder.weekday,
+      dayOfMonth: reminder.dayOfMonth,
+      month: reminder.month,
+    );
+
+    // Schedule notification
+    try {
+      await NotificationService.scheduleReminderNotification(reminderWithId);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Reminder set for ${reminderWithId.nextOccurrence}'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Reminder saved but notification failed: $e'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    }
+
+    if (mounted) {
+      Navigator.pop(context, true);
+    }
   }
 
   bool get canSave {

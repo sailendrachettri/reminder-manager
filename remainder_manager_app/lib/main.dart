@@ -15,29 +15,48 @@ import 'package:permission_handler/permission_handler.dart';
 import './notifications/alarm_style/notification_alarm.dart';
 import 'dart:io';
 
+// Global navigation key - CRITICAL for navigating from background
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Request notification permission on Android 13+
+  
+  // Request permissions
   if (Platform.isAndroid) {
-    final status = await Permission.notification.request();
-    if (!status.isGranted) {
-      print("⚠️ Notification permission denied!");
-    }
+    await Permission.notification.request();
+    await Permission.scheduleExactAlarm.request();
   }
-
+  
+  // Initialize notifications
   await NotificationService.init();
-
+  
+  // Set up the callback to show alarm screen when notification triggers
+  NotificationService.onAlarmTrigger = (String title, String description) {
+    print('🚀 Opening alarm screen: $title');
+    
+    // Use the global navigator key to navigate even when app is in background
+    navigatorKey.currentState?.push(
+      MaterialPageRoute(
+        builder: (context) => AlarmScreen(
+          title: title,
+          description: description,
+        ),
+        fullscreenDialog: true,
+      ),
+    );
+  };
+  
   runApp(const ReminderApp());
 }
 
 /* ================= APP ================= */
-
 class ReminderApp extends StatelessWidget {
   const ReminderApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey, // CRITICAL: Connect the global key
       debugShowCheckedModeBanner: false,
       title: 'RemindMe',
       theme: AppTheme.light(),
@@ -49,7 +68,6 @@ class ReminderApp extends StatelessWidget {
 }
 
 /* ================= HOME SCREEN ================= */
-
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -67,29 +85,24 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _demoAlarm() async {
-  if (!mounted) return;
-
-  // Pick a reminder from DB (demo: first reminder)
-  final reminders = await ReminderDatabase.instance.getAll();
-  final reminder = reminders.isNotEmpty
-      ? reminders.first
-      : null;
-
-  Navigator.of(context).push(
-    MaterialPageRoute(
-      builder: (_) => AlarmScreen(
-        title: reminder?.title ?? "Demo Alarm",
-        description: reminder?.description ?? "This is your demo alarm.",
+    if (!mounted) return;
+    
+    final reminders = await ReminderDatabase.instance.getAll();
+    final reminder = reminders.isNotEmpty ? reminders.first : null;
+    
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => AlarmScreen(
+          title: reminder?.title ?? "Demo Alarm",
+          description: reminder?.description ?? "This is your demo alarm.",
+        ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   @override
   void initState() {
     super.initState();
-
     Future.delayed(const Duration(seconds: 5), () {
       if (mounted) {
         setState(() => _showGreeting = false);
@@ -113,6 +126,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _deleteReminder(Reminder r) async {
+    if (r.id != null) {
+      await NotificationService.cancelReminderNotification(r.id!);
+    }
+    
     await ReminderDatabase.instance.delete(r.id!);
     setState(() {
       _summaryRefresh++;
@@ -120,6 +137,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _completeReminder(Reminder r) async {
+    if (r.id != null) {
+      await NotificationService.cancelReminderNotification(r.id!);
+    }
+    
     await ReminderDatabase.instance.delete(r.id!);
     setState(() {
       _summaryRefresh++;
@@ -133,45 +154,37 @@ class _HomeScreenState extends State<HomeScreen> {
           final d = r.nextOccurrence;
           return isToday(d) || isTomorrow(d);
         }).toList();
-
         list.sort((a, b) {
           final da = dateOnly(a.nextOccurrence);
           final db = dateOnly(b.nextOccurrence);
-
           if (da != db) {
             return da.compareTo(db);
           }
-
           return a.nextOccurrence.compareTo(b.nextOccurrence);
         });
-
         return list;
-
+        
       case ReminderFilter.today:
         final list = reminders.where((r) => isToday(r.nextOccurrence)).toList();
-
         sortByDateThenTime(list);
         return list;
-
+        
       case ReminderFilter.thisWeek:
         final list = reminders
             .where((r) => isThisWeek(r.nextOccurrence))
             .toList();
-
         sortByDateThenTime(list);
         return list;
-
+        
       case ReminderFilter.overdue:
         final list = reminders
             .where((r) => r.nextOccurrence.isBefore(DateTime.now()))
             .toList();
-
         sortByDateThenTime(list);
         return list;
-
+        
       case ReminderFilter.all:
         final list = List<Reminder>.from(reminders);
-
         sortByDateThenTime(list);
         return list;
     }
@@ -184,7 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.transparent,
       builder: (_) => const AddReminderSheet(),
     );
-
+    
     if (added == true) {
       setState(() {
         _summaryRefresh++;
@@ -218,25 +231,21 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           SummaryGrid(key: ValueKey(_summaryRefresh), onSelect: _onGridTap),
-
           const SizedBox(height: 12),
-
           SectionHeading(title: sectionTitle),
-
           FutureBuilder<List<Reminder>>(
             future: ReminderDatabase.instance.getAll(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return const SizedBox();
               }
-
+              
               final filtered = _applyFilter(snapshot.data!);
-
+              
               if (filtered.isEmpty) {
                 return const EmptyState(
                   svgPath: 'assets/svgs/global_search.svg',
@@ -244,7 +253,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   subtitle: 'Add one to stay on track',
                 );
               }
-
+              
               return Column(
                 children: filtered.map((r) {
                   return ReminderCard(
@@ -264,7 +273,9 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: _openAddReminder,
         child: const Icon(Icons.add),
+        
       ),
+      
     );
   }
 }
