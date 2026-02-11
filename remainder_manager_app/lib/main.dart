@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:remainder_manager_app/screens/home_screen.dart';
 
 import './theme/app_theme.dart';
 import './screens/splash_screen.dart';
@@ -58,7 +59,7 @@ class ReminderApp extends StatelessWidget {
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       themeMode: ThemeMode.system,
-      home: const SplashScreen(),
+      home: const HomeScreen(),
     );
   }
 }
