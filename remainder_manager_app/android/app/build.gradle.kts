@@ -5,12 +5,12 @@ plugins {
 }
 
 android {
-    namespace = "com.example.remainder_manager_app"
+    namespace = "com.remainder.manager.app.release"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
     defaultConfig {
-        applicationId = "com.example.remainder_manager_app"
+        applicationId = "com.remainder.manager.app.release"
         minSdk = flutter.minSdkVersion
         targetSdk = 34
         versionCode = flutter.versionCode

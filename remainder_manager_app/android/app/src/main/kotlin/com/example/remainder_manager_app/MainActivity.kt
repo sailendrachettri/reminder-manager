@@ -1,4 +1,4 @@
-package com.example.remainder_manager_app // CHANGE THIS to match your app's package name
+package com.remainder.manager.app.release // CHANGE THIS to match your app's package name
 
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine

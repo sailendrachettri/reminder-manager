@@ -39,64 +39,66 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
   }
 
   Future<void> _saveReminder() async {
-  final time = selectedTime!;
-  final timeStr =
-      '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+    final time = selectedTime!;
+    final timeStr =
+        '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
 
-  final reminder = Reminder(
-    title: titleController.text.trim(),
-    description: descriptionController.text.trim(),
-    type: reminderTypes[selectedTypeIndex],
-    time: timeStr,
-    date: isOnce ? selectedDate!.toIso8601String().split('T').first : null,
-    weekday: isWeekly ? selectedWeekday : null,
-    dayOfMonth: (isMonthly || isYearly) ? selectedDayOfMonth : null,  // ✅ FIXED
-    month: isYearly ? selectedMonth : null,
-  );
+    final reminder = Reminder(
+      title: titleController.text.trim(),
+      description: descriptionController.text.trim(),
+      type: reminderTypes[selectedTypeIndex],
+      time: timeStr,
+      date: isOnce ? selectedDate!.toIso8601String().split('T').first : null,
+      weekday: isWeekly ? selectedWeekday : null,
+      dayOfMonth: (isMonthly || isYearly)
+          ? selectedDayOfMonth
+          : null, // ✅ FIXED
+      month: isYearly ? selectedMonth : null,
+    );
 
-  // Save to database
-  final id = await ReminderDatabase.instance.insert(reminder);
+    // Save to database
+    final id = await ReminderDatabase.instance.insert(reminder);
 
-  // Create reminder with ID for scheduling
-  final reminderWithId = Reminder(
-    id: id,
-    title: reminder.title,
-    description: reminder.description,
-    type: reminder.type,
-    time: reminder.time,
-    date: reminder.date,
-    weekday: reminder.weekday,
-    dayOfMonth: reminder.dayOfMonth,
-    month: reminder.month,
-  );
+    // Create reminder with ID for scheduling
+    final reminderWithId = Reminder(
+      id: id,
+      title: reminder.title,
+      description: reminder.description,
+      type: reminder.type,
+      time: reminder.time,
+      date: reminder.date,
+      weekday: reminder.weekday,
+      dayOfMonth: reminder.dayOfMonth,
+      month: reminder.month,
+    );
 
-  // Schedule notification with UNIQUE ID
-  try {
-    await NotificationService.scheduleReminderNotification(reminderWithId);
+    // Schedule notification with UNIQUE ID
+    try {
+      await NotificationService.scheduleReminderNotification(reminderWithId);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Reminder set for ${reminderWithId.nextOccurrence}'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Reminder saved but notification failed: $e'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    }
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Reminder set for ${reminderWithId.nextOccurrence}'),
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    }
-  } catch (e) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Reminder saved but notification failed: $e'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      Navigator.pop(context, true);
     }
   }
-
-  if (mounted) {
-    Navigator.pop(context, true);
-  }
-}
 
   bool get canSave {
     if (titleController.text.trim().isEmpty) return false;
@@ -124,36 +126,44 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.9,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      child: Column(
-        children: [
-          _buildHandle(),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                _buildTextSection(),
-                const SizedBox(height: 20),
-                _buildRepeatTypeSelector(),
-                const SizedBox(height: 20),
-                _buildDynamicInputs(context),
-                const SizedBox(height: 30),
-                SizedBox(
-                  height: 46,
-                  child: ElevatedButton(
-                    onPressed: canSave ? _saveReminder : null,
-                    child: const Text('Save Reminder'),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.9,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: Column(
+          children: [
+            _buildHandle(),
+            Expanded(
+              child: ListView(
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                padding: const EdgeInsets.all(16),
+                children: [
+                  _buildTextSection(),
+                  const SizedBox(height: 20),
+                  _buildRepeatTypeSelector(),
+                  const SizedBox(height: 20),
+                  _buildDynamicInputs(context),
+                  const SizedBox(height: 30),
+                  SizedBox(
+                    height: 46,
+                    child: ElevatedButton(
+                      onPressed: canSave ? _saveReminder : null,
+                      child: const Text('Save Reminder'),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -173,31 +183,35 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
   }
 
   Widget _buildTextSection() {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        children: [
-          TextField(
-            controller: titleController,
-            decoration: const InputDecoration(
-              hintText: 'Reminder title',
-              border: InputBorder.none,
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade100,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          children: [
+            TextField(
+              controller: titleController,
+              decoration: const InputDecoration(
+                hintText: 'Reminder title',
+                border: InputBorder.none,
+              ),
             ),
-          ),
-          const Divider(),
-          TextField(
-            controller: descriptionController,
-            maxLines: null,
-            decoration: const InputDecoration(
-              hintText: 'Add notes',
-              border: InputBorder.none,
+            const Divider(),
+            TextField(
+              controller: descriptionController,
+              maxLines: null,
+              decoration: const InputDecoration(
+                hintText: 'Add notes',
+                border: InputBorder.none,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -210,6 +224,9 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
           icon: Icons.access_time,
           label: selectedTime?.prettyTime ?? 'Time',
           onTap: () async {
+            FocusManager.instance.primaryFocus?.unfocus();
+
+            await Future.delayed(const Duration(milliseconds: 100));
             final picked = await showTimePicker(
               context: context,
               initialTime: TimeOfDay.now(),
@@ -225,6 +242,8 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
             icon: Icons.calendar_today,
             label: selectedDate?.prettyDate ?? 'Date',
             onTap: () async {
+              FocusManager.instance.primaryFocus?.unfocus();
+
               final picked = await showDatePicker(
                 context: context,
                 initialDate: DateTime.now(),
