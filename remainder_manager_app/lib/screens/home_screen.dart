@@ -26,6 +26,9 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _showGreeting = true;
 
   void _onGridTap(ReminderFilter filter) {
+    setState(() {
+      _summaryRefresh++; /* Note: To refresh the page */
+    });
     setState(() => selectedFilter = filter);
   }
 
@@ -87,11 +90,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _completeReminder(Reminder r) async {
-    if (r.id != null) {
+    if (r.id != null && r.type == 'Once') {
       await NotificationService.cancelReminderNotification(r.id!);
+      await ReminderDatabase.instance.delete(r.id!);
     }
 
-    await ReminderDatabase.instance.delete(r.id!);
     setState(() {
       _summaryRefresh++;
     });

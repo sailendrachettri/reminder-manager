@@ -39,64 +39,64 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
   }
 
   Future<void> _saveReminder() async {
-    final time = selectedTime!;
-    final timeStr =
-        '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+  final time = selectedTime!;
+  final timeStr =
+      '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
 
-    final reminder = Reminder(
-      title: titleController.text.trim(),
-      description: descriptionController.text.trim(),
-      type: reminderTypes[selectedTypeIndex],
-      time: timeStr,
-      date: isOnce ? selectedDate!.toIso8601String().split('T').first : null,
-      weekday: isWeekly ? selectedWeekday : null,
-      dayOfMonth: isMonthly ? selectedDayOfMonth : null,
-      month: isYearly ? selectedMonth : null,
-    );
+  final reminder = Reminder(
+    title: titleController.text.trim(),
+    description: descriptionController.text.trim(),
+    type: reminderTypes[selectedTypeIndex],
+    time: timeStr,
+    date: isOnce ? selectedDate!.toIso8601String().split('T').first : null,
+    weekday: isWeekly ? selectedWeekday : null,
+    dayOfMonth: (isMonthly || isYearly) ? selectedDayOfMonth : null,  // ✅ FIXED
+    month: isYearly ? selectedMonth : null,
+  );
 
-    // Save to database
-    final id = await ReminderDatabase.instance.insert(reminder);
-    
-    // Create reminder with ID for scheduling
-    final reminderWithId = Reminder(
-      id: id,
-      title: reminder.title,
-      description: reminder.description,
-      type: reminder.type,
-      time: reminder.time,
-      date: reminder.date,
-      weekday: reminder.weekday,
-      dayOfMonth: reminder.dayOfMonth,
-      month: reminder.month,
-    );
+  // Save to database
+  final id = await ReminderDatabase.instance.insert(reminder);
 
-    // Schedule notification
-    try {
-      await NotificationService.scheduleReminderNotification(reminderWithId);
-      
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Reminder set for ${reminderWithId.nextOccurrence}'),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Reminder saved but notification failed: $e'),
-            backgroundColor: Colors.orange,
-          ),
-        );
-      }
-    }
+  // Create reminder with ID for scheduling
+  final reminderWithId = Reminder(
+    id: id,
+    title: reminder.title,
+    description: reminder.description,
+    type: reminder.type,
+    time: reminder.time,
+    date: reminder.date,
+    weekday: reminder.weekday,
+    dayOfMonth: reminder.dayOfMonth,
+    month: reminder.month,
+  );
+
+  // Schedule notification with UNIQUE ID
+  try {
+    await NotificationService.scheduleReminderNotification(reminderWithId);
 
     if (mounted) {
-      Navigator.pop(context, true);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Reminder set for ${reminderWithId.nextOccurrence}'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  } catch (e) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Reminder saved but notification failed: $e'),
+          backgroundColor: Colors.orange,
+        ),
+      );
     }
   }
+
+  if (mounted) {
+    Navigator.pop(context, true);
+  }
+}
 
   bool get canSave {
     if (titleController.text.trim().isEmpty) return false;
@@ -424,4 +424,3 @@ class _InputCard extends StatelessWidget {
     );
   }
 }
-

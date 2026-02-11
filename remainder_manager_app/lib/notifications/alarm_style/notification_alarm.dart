@@ -87,6 +87,7 @@ class NotificationService {
   }
 
   /// Schedule a notification for a reminder
+  /// Schedule a notification for a reminder
   static Future<void> scheduleReminderNotification(Reminder reminder) async {
     if (reminder.id == null) {
       throw Exception('Reminder must have an ID to schedule notification');
@@ -132,7 +133,6 @@ class NotificationService {
           enableVibration: true,
           ticker: 'Reminder',
           category: AndroidNotificationCategory.alarm,
-          // High visibility for lock screen
           visibility: NotificationVisibility.public,
         );
 
@@ -148,60 +148,103 @@ class NotificationService {
     print('📅 Scheduling notification for: $scheduledDate');
     print('   Title: ${reminder.title}');
     print('   Type: ${reminder.type}');
+    print('   ID: ${reminder.id}');
 
-    // Handle different reminder types
-    if (reminder.type == 'Once') {
-      await _notifications.zonedSchedule(
-        reminder.id!,
-        '⏰ ${reminder.title}',
-        reminder.description.isEmpty ? 'Reminder' : reminder.description,
-        scheduledDate,
-        details,
-        payload: payload,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-      );
-    } else if (reminder.type == 'Daily') {
-      await _notifications.zonedSchedule(
-        reminder.id!,
-        '⏰ ${reminder.title}',
-        reminder.description.isEmpty ? 'Daily Reminder' : reminder.description,
-        scheduledDate,
-        details,
-        payload: payload,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-        matchDateTimeComponents: DateTimeComponents.time,
-      );
-    } else if (reminder.type == 'Weekly') {
-      await _notifications.zonedSchedule(
-        reminder.id!,
-        '⏰ ${reminder.title}',
-        reminder.description.isEmpty ? 'Weekly Reminder' : reminder.description,
-        scheduledDate,
-        details,
-        payload: payload,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-        matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
-      );
-    } else {
-      await _notifications.zonedSchedule(
-        reminder.id!,
-        '⏰ ${reminder.title}',
-        reminder.description.isEmpty
-            ? '${reminder.type} Reminder'
-            : reminder.description,
-        scheduledDate,
-        details,
-        payload: payload,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-      );
+    // Handle different reminder types with proper recurrence
+    switch (reminder.type) {
+      case 'Once':
+        await _notifications.zonedSchedule(
+          reminder.id!,
+          '⏰ ${reminder.title}',
+          reminder.description.isEmpty ? 'Reminder' : reminder.description,
+          scheduledDate,
+          details,
+          payload: payload,
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+        );
+        break;
+
+      case 'Daily':
+        await _notifications.zonedSchedule(
+          reminder.id!,
+          '⏰ ${reminder.title}',
+          reminder.description.isEmpty
+              ? 'Daily Reminder'
+              : reminder.description,
+          scheduledDate,
+          details,
+          payload: payload,
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+          matchDateTimeComponents: DateTimeComponents.time,
+        );
+        break;
+
+      case 'Weekly':
+        await _notifications.zonedSchedule(
+          reminder.id!,
+          '⏰ ${reminder.title}',
+          reminder.description.isEmpty
+              ? 'Weekly Reminder'
+              : reminder.description,
+          scheduledDate,
+          details,
+          payload: payload,
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+          matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
+        );
+        break;
+
+      case 'Monthly':
+        await _notifications.zonedSchedule(
+          reminder.id!,
+          '⏰ ${reminder.title}',
+          reminder.description.isEmpty
+              ? 'Monthly Reminder'
+              : reminder.description,
+          scheduledDate,
+          details,
+          payload: payload,
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+          matchDateTimeComponents: DateTimeComponents.dayOfMonthAndTime,
+        );
+        break;
+
+      case 'Yearly':
+        await _notifications.zonedSchedule(
+          reminder.id!,
+          '⏰ ${reminder.title}',
+          reminder.description.isEmpty
+              ? 'Yearly Reminder'
+              : reminder.description,
+          scheduledDate,
+          details,
+          payload: payload,
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+        );
+        break;
+
+      default:
+        await _notifications.zonedSchedule(
+          reminder.id!,
+          '⏰ ${reminder.title}',
+          reminder.description.isEmpty ? 'Reminder' : reminder.description,
+          scheduledDate,
+          details,
+          payload: payload,
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+        );
     }
 
     print('✅ Notification scheduled successfully');
