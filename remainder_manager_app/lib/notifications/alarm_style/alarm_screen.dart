@@ -6,12 +6,14 @@ import '../../theme/app_colors.dart';
 class AlarmScreen extends StatefulWidget {
   final String title;
   final String description;
+  final String reminderType;
   final VoidCallback onDismiss;
 
   const AlarmScreen({
     super.key,
     required this.title,
     required this.description,
+    required this.reminderType,
     required this.onDismiss,
   });
 
@@ -89,7 +91,9 @@ class _AlarmScreenState extends State<AlarmScreen>
 
     if (_dragX > (_sliderWidth - _knobSize) * 0.9) {
       _stopVibration();
-      widget.onDismiss();
+      if (widget.reminderType == 'Once') {
+        widget.onDismiss(); // This will delete it
+      }
       Navigator.pop(context);
     } else {
       setState(() => _dragX = 0);
@@ -147,7 +151,6 @@ class _AlarmScreenState extends State<AlarmScreen>
                       // ),
 
                       // const SizedBox(height: 22),
-
                       Text(
                         widget.title,
                         style: const TextStyle(

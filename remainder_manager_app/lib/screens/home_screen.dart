@@ -43,6 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (_) => AlarmScreen(
           title: reminder?.title ?? "Demo Alarm",
           description: reminder?.description ?? "This is your demo alarm.",
+          reminderType: reminder?.type ?? 'Once',
           onDismiss: () {
             if (reminder != null) {
               _completeReminder(reminder);
@@ -90,14 +91,21 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _completeReminder(Reminder r) async {
+    print("outside");
     if (r.id != null && r.type == 'Once') {
       await NotificationService.cancelReminderNotification(r.id!);
       await ReminderDatabase.instance.delete(r.id!);
-    }
+      print("inside");
 
-    setState(() {
-      _summaryRefresh++;
-    });
+      setState(() {
+        _summaryRefresh++;
+      });
+    } else {
+      print("else");
+      setState(() {
+        _summaryRefresh++;
+      });
+    }
   }
 
   List<Reminder> _applyFilter(List<Reminder> reminders) {

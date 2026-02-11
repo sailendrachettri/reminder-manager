@@ -26,21 +26,30 @@ Future<void> main() async {
 
   // Handle alarm trigger
   NotificationService.onAlarmTrigger =
-      (int reminderId, String title, String description) {
-    navigatorKey.currentState?.push(
-      MaterialPageRoute(
-        fullscreenDialog: true,
-        builder: (_) => AlarmScreen(
-          title: title,
-          description: description,
-          onDismiss: () async {
-            await NotificationService.cancelReminderNotification(reminderId);
-            await ReminderDatabase.instance.delete(reminderId);
-          },
-        ),
-      ),
-    );
-  };
+      (int reminderId, String title, String description) async {
+        final reminder = await ReminderDatabase.instance.getById(reminderId);
+        if (reminder == null) return;
+
+        navigatorKey.currentState?.push(
+          MaterialPageRoute(
+            fullscreenDialog: true,
+            builder: (_) => AlarmScreen(
+              title: title,
+              description: description,
+              reminderType: reminder.type,
+              onDismiss: () async {
+                if (reminder.type == 'Once') {
+                  await NotificationService.cancelReminderNotification(
+                    reminderId,
+                  );
+                  await ReminderDatabase.instance.delete(reminderId);
+                }
+              
+              },
+            ),
+          ),
+        );
+      };
 
   runApp(const ReminderApp());
 }

@@ -213,6 +213,7 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
             final picked = await showTimePicker(
               context: context,
               initialTime: TimeOfDay.now(),
+              initialEntryMode: TimePickerEntryMode.input,
             );
             if (picked != null) setState(() => selectedTime = picked);
           },
@@ -227,7 +228,7 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
               final picked = await showDatePicker(
                 context: context,
                 initialDate: DateTime.now(),
-                firstDate: DateTime(2000),
+                firstDate: DateTime.now(),
                 lastDate: DateTime(2100),
               );
               if (picked != null) setState(() => selectedDate = picked);

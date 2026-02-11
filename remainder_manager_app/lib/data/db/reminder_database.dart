@@ -50,6 +50,19 @@ class ReminderDatabase {
     return result.map(Reminder.fromMap).toList();
   }
 
+  Future<Reminder?> getById(int id) async {
+    final db = await database;
+    final result = await db.query(
+      'reminders',
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
+
+    if (result.isEmpty) return null;
+    return Reminder.fromMap(result.first);
+  }
+
   Future<void> delete(int id) async {
     final db = await database;
     await db.delete('reminders', where: 'id = ?', whereArgs: [id]);

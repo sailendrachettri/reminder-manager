@@ -90,7 +90,6 @@ class ReminderCard extends StatelessWidget {
           ),
         ),
 
-        /// Collapsed view
         subtitle: Row(
           children: [
             Text(
@@ -106,7 +105,6 @@ class ReminderCard extends StatelessWidget {
           ],
         ),
 
-        /// Expanded view
         children: [
           if (description.isNotEmpty)
             Padding(
@@ -140,21 +138,48 @@ class ReminderCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton.icon(
-                  icon: const Icon(Icons.check_circle_outline),
-                  label: const Text('Completed'),
-                  onPressed: () {
-                    _confirmAction(
-                      context: context,
-                      title: 'Mark as Completed?',
-                      message:
-                          'This reminder will be removed after marking as completed.',
-                      onConfirm: onComplete,
-                    );
-                  },
+              
+              // ✅ FIXED: Only show "Completed" button for 'Once' type reminders
+              if (type == 'Once')
+                Expanded(
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.check_circle_outline),
+                    label: const Text('Completed'),
+                    onPressed: () {
+                      _confirmAction(
+                        context: context,
+                        title: 'Mark as Completed?',
+                        message:
+                            'This reminder will be removed after marking as completed.',
+                        onConfirm: onComplete,
+                      );
+                    },
+                  ),
+                )
+              else
+                // ✅ NEW: Show info button for recurring reminders
+                Expanded(
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.info_outline),
+                    label: Text(
+                      type == 'Daily' ? 'Repeats Daily' :
+                      type == 'Weekly' ? 'Repeats Weekly' :
+                      type == 'Monthly' ? 'Repeats Monthly' :
+                      type == 'Yearly' ? 'Repeats Yearly' : 'Repeats',
+                      style: const TextStyle(fontSize: 13),
+                    ),
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'This is a $type reminder. It will repeat automatically. Delete it to stop all future occurrences.',
+                          ),
+                          duration: const Duration(seconds: 3),
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
             ],
           ),
         ],

@@ -4,6 +4,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:permission_handler/permission_handler.dart';
 import '../../data/models/reminder.dart';
 import 'dart:io';
+import '../../data/db/reminder_database.dart';
 
 class NotificationService {
   static final FlutterLocalNotificationsPlugin _notifications =
@@ -53,6 +54,9 @@ class NotificationService {
 
           print('📱 Triggering alarm screen for ID: $reminderId');
 
+          // Reschedule yearly reminders (they don't auto-repeat)
+          _rescheduleYearlyReminderIfNeeded(reminderId);
+
           if (onAlarmTrigger != null) {
             onAlarmTrigger!(reminderId, title, description);
           }
@@ -60,6 +64,19 @@ class NotificationService {
       } catch (e) {
         print('❌ Error handling notification: $e');
       }
+    }
+  }
+
+  static Future<void> _rescheduleYearlyReminderIfNeeded(int reminderId) async {
+    try {
+      final reminder = await ReminderDatabase.instance.getById(reminderId);
+
+      if (reminder != null && reminder.type == 'Yearly') {
+        print('🔄 Rescheduling yearly reminder: ${reminder.title}');
+        await scheduleReminderNotification(reminder);
+      }
+    } catch (e) {
+      print('❌ Error rescheduling yearly reminder: $e');
     }
   }
 
