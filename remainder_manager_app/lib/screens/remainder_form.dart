@@ -4,6 +4,8 @@ import '../data/db/reminder_database.dart';
 import '../utils/date-time/formate_pretty_date.dart';
 import '../utils/date-time/formate_pretty_time.dart';
 import '../notifications/alarm_style/notification_alarm.dart';
+import '../utils/date-time/formate_pretty_date.dart';
+import '../utils/date-time/formate_pretty_time.dart';
 
 class AddReminderSheet extends StatefulWidget {
   const AddReminderSheet({super.key});
@@ -75,11 +77,14 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
     // Schedule notification with UNIQUE ID
     try {
       await NotificationService.scheduleReminderNotification(reminderWithId);
+      final next = reminderWithId.nextOccurrence;
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Reminder set for ${reminderWithId.nextOccurrence}'),
+            content: Text(
+              'Reminder set for ${next.smartDate} at ${next.prettyTime}',
+            ),
             duration: const Duration(seconds: 2),
           ),
         );
@@ -133,7 +138,7 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
       },
       child: Container(
         height: MediaQuery.of(context).size.height * 0.9,
-        decoration:  BoxDecoration(
+        decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surfaceContainerHigh,
           borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         ),

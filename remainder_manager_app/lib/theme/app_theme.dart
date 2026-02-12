@@ -17,6 +17,20 @@ class AppTheme {
         ),
       ),
 
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        elevation: 0,
+        backgroundColor: AppColors.primary.withOpacity(0.08),
+        contentTextStyle: const TextStyle(
+          color: AppColors.primary,
+          fontWeight: FontWeight.w600,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: AppColors.primary.withOpacity(0.03)),
+        ),
+      ),
+
       chipTheme: ChipThemeData(
         selectedColor: AppColors.primary,
         checkmarkColor: Colors.white,
@@ -42,7 +56,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(10),
           side: BorderSide(color: AppColors.primary, width: 1),
         ),
-        
+
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
       ),
 
@@ -74,6 +88,17 @@ class AppTheme {
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.primary,
         brightness: Brightness.dark,
+      ),
+
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        elevation: 0,
+        backgroundColor: AppColors.primary,
+        contentTextStyle: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w500,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
     );
   }
