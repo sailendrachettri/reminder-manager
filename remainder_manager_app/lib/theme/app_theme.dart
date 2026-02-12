@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   static ThemeData light() {
     return ThemeData(
       useMaterial3: true,
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         toolbarHeight: 38,
         centerTitle: false,
-
-        titleTextStyle: TextStyle(
+        titleTextStyle: GoogleFonts.poppins(
           fontSize: 18,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.4,
@@ -75,9 +75,11 @@ class AppTheme {
         collapsedIconColor: const Color.fromARGB(255, 61, 84, 103),
       ),
 
-      textTheme: const TextTheme(
-        titleMedium: TextStyle(fontWeight: FontWeight.w600),
-        labelMedium: TextStyle(fontSize: 12),
+      textTheme: GoogleFonts.aBeeZeeTextTheme(
+        const TextTheme(
+          titleMedium: TextStyle(fontWeight: FontWeight.w600),
+          labelMedium: TextStyle(fontSize: 12),
+        ),
       ),
     );
   }
@@ -89,6 +91,8 @@ class AppTheme {
         seedColor: AppColors.primary,
         brightness: Brightness.dark,
       ),
+
+      textTheme: GoogleFonts.aBeeZeeTextTheme(ThemeData.dark().textTheme),
 
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
