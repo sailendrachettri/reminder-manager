@@ -76,58 +76,75 @@ class ReminderDatabase {
 
   Future<int> countToday() async {
     final db = await database;
-    final today = DateTime.now().toIso8601String().split('T').first;
+    final rows = await db.query('reminders');
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final tomorrow = today.add(const Duration(days: 1));
 
-    final res = await db.rawQuery(
-      'SELECT COUNT(*) as c FROM reminders WHERE date = ?',
-      [today],
-    );
-    return Sqflite.firstIntValue(res) ?? 0;
+    int count = 0;
+
+    for (final row in rows) {
+      final reminder = Reminder.fromMap(row);
+      final nextOccurrence = reminder.nextOccurrence;
+
+      // Check if next occurrence is today
+      if (nextOccurrence.isAfter(today.subtract(const Duration(seconds: 1))) &&
+          nextOccurrence.isBefore(tomorrow)) {
+        count++;
+      }
+    }
+
+    return count;
   }
 
   Future<int> countThisWeek() async {
     final db = await database;
+    final rows = await db.query('reminders');
     final now = DateTime.now();
 
-    final start = now.subtract(Duration(days: now.weekday - 1));
-    final end = now.add(Duration(days: 7 - now.weekday));
-
-    final startDate =
-        '${start.year}-${start.month.toString().padLeft(2, '0')}-${start.day.toString().padLeft(2, '0')}';
-    final endDate =
-        '${end.year}-${end.month.toString().padLeft(2, '0')}-${end.day.toString().padLeft(2, '0')}';
-
-    final res = await db.rawQuery(
-      '''
-    SELECT COUNT(*) as c
-    FROM reminders
-    WHERE
-      (
-        type = 'Once'
-        AND date BETWEEN ? AND ?
-      )
-      OR
-      (
-        type = 'Weekly'
-      )
-  ''',
-      [startDate, endDate],
+    // Get start of week (Monday)
+    final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+    final weekStart = DateTime(
+      startOfWeek.year,
+      startOfWeek.month,
+      startOfWeek.day,
     );
 
-    return Sqflite.firstIntValue(res) ?? 0;
+    // Get end of week (Sunday)
+    final endOfWeek = weekStart.add(const Duration(days: 7));
+
+    int count = 0;
+
+    for (final row in rows) {
+      final reminder = Reminder.fromMap(row);
+      final nextOccurrence = reminder.nextOccurrence;
+
+      // Check if next occurrence is this week
+      if (nextOccurrence.isAfter(
+            weekStart.subtract(const Duration(seconds: 1)),
+          ) &&
+          nextOccurrence.isBefore(endOfWeek)) {
+        count++;
+      }
+    }
+
+    return count;
   }
 
   Future<int> countOverdue() async {
     final db = await database;
     final rows = await db.query('reminders');
-
     final now = DateTime.now();
-
     int count = 0;
+
     for (final row in rows) {
       final reminder = Reminder.fromMap(row);
-      if (reminder.effectiveDateTime.isBefore(now)) {
-        count++;
+
+      // Only "Once" type reminders can be overdue
+      if (reminder.type == 'Once') {
+        if (reminder.nextOccurrence.isBefore(now)) {
+          count++;
+        }
       }
     }
 
