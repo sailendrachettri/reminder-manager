@@ -5,19 +5,46 @@ class AppTheme {
   static ThemeData light() {
     return ThemeData(
       useMaterial3: true,
-
       appBarTheme: const AppBarTheme(
         toolbarHeight: 38,
         centerTitle: false,
+
         titleTextStyle: TextStyle(
-          
           fontSize: 18,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.4,
-          color: AppColors.primary
+          color: AppColors.primary,
         ),
       ),
 
+      chipTheme: ChipThemeData(
+        selectedColor: AppColors.primary,
+        checkmarkColor: Colors.white,
+        showCheckmark: false,
+        backgroundColor: Colors.white,
+        /*For unselected */
+        labelStyle: const TextStyle(
+          fontWeight: FontWeight.w500,
+          fontSize: 11,
+          color: AppColors.primary,
+          height: 1,
+          leadingDistribution: TextLeadingDistribution.even,
+        ),
+        /*For selected */
+        secondaryLabelStyle: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w500,
+          fontSize: 11,
+          height: 1,
+          leadingDistribution: TextLeadingDistribution.even,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+          side: BorderSide(color: AppColors.primary, width: 1),
+        ),
+        
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+      ),
 
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.primary,
