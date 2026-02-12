@@ -3,4 +3,5 @@ Remainder manager app for android
 
 
 ## Features to be added
-- Remainder alaram
+- Theme toggle
+- Custom user name for greetings
