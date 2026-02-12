@@ -203,7 +203,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Material(
               color: Colors.transparent,
               child: InkWell(
-                borderRadius: BorderRadius.circular(30),
+                borderRadius: BorderRadius.circular(33),
                 onTap: () {
                   Navigator.push(
                     context,
@@ -211,10 +211,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 },
                 child: Container(
-                  padding: const EdgeInsets.all(6),
+                  padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: const Color.fromARGB(59, 190, 208, 230), // light blue bg
+                    color: const Color.fromARGB(30, 190, 208, 230), // light blue bg
                   ),
                   child: Image.asset('assets/icon/logo.png', height: 23),
                 ),
