@@ -11,6 +11,7 @@ import '../screens/remainder_form.dart';
 import '../screens/summary_grid.dart';
 import '../screens/remainder_card.dart';
 import '../utils/headings/section_headings.dart';
+import '../screens/settings_screen.dart';
 
 /* ================= HOME SCREEN ================= */
 class HomeScreen extends StatefulWidget {
@@ -91,17 +92,17 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _completeReminder(Reminder r) async {
-    print("outside");
+    // print("outside");
     if (r.id != null && r.type == 'Once') {
       await NotificationService.cancelReminderNotification(r.id!);
       await ReminderDatabase.instance.delete(r.id!);
-      print("inside");
+      // print("inside");
 
       setState(() {
         _summaryRefresh++;
       });
     } else {
-      print("else");
+      // print("else");
       setState(() {
         _summaryRefresh++;
       });
@@ -171,27 +172,58 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        titleSpacing: 0,
-        title: SizedBox(
-          width: 160,
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 700),
-            transitionBuilder: (child, animation) =>
-                FadeTransition(opacity: animation, child: child),
-            child: Text(
-              _showGreeting ? getGreeting() : 'RemindMe',
-              key: ValueKey(_showGreeting),
+        titleSpacing: 25,
+
+        title: Row(
+          children: [
+            // 🔹 LEFT — Animated Title
+            Expanded(
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 700),
+                  transitionBuilder: (child, animation) =>
+                      FadeTransition(opacity: animation, child: child),
+                  child: Text(
+                    _showGreeting ? getGreeting() : 'RemindMe',
+                    key: ValueKey(_showGreeting),
+                  ),
+                ),
+              ),
             ),
-          ),
+
+            // 🔹 CENTER — Demo Alarm
+            // IconButton(
+            //   icon: const Icon(Icons.alarm),
+            //   onPressed: _demoAlarm,
+            //   tooltip: 'Demo Alarm',
+            // ),
+
+            // 🔹 RIGHT — Clickable Logo
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(30),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: const Color.fromARGB(59, 190, 208, 230), // light blue bg
+                  ),
+                  child: Image.asset('assets/icon/logo.png', height: 23),
+                ),
+              ),
+            ),
+          ],
         ),
-        // actions: [
-        //   IconButton(
-        //     icon: const Icon(Icons.alarm),
-        //     onPressed: _demoAlarm,
-        //     tooltip: 'Demo Alarm',
-        //   ),
-        // ],
       ),
+
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

@@ -4,7 +4,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:remainder_manager_app/screens/home_screen.dart';
 
 import './theme/app_theme.dart';
-import './screens/splash_screen.dart';
+// import './screens/splash_screen.dart';
 import './notifications/alarm_style/notification_alarm.dart';
 import './notifications/alarm_style/alarm_screen.dart';
 import './data/db/reminder_database.dart';

@@ -48,5 +48,6 @@ flutter:
   assets:
     - assets/svgs/global_search.svg
     - assets/icon/app_icon.png
+    - assets/icon/logo.png
 
   uses-material-design: true
