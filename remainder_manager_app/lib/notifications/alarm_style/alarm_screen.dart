@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../theme/app_colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AlarmScreen extends StatefulWidget {
   final String title;
@@ -36,7 +37,7 @@ class _AlarmScreenState extends State<AlarmScreen>
   @override
   void initState() {
     super.initState();
-    _startVibration();
+    _loadVibrationSetting();
 
     _hintController = AnimationController(
       vsync: this,
@@ -57,8 +58,17 @@ class _AlarmScreenState extends State<AlarmScreen>
     super.dispose();
   }
 
+  Future<void> _loadVibrationSetting() async {
+    final prefs = await SharedPreferences.getInstance();
+    final vibrationEnabled = prefs.getBool('vibration_enabled') ?? true;
+    debugPrint("🔔 Vibration setting from prefs: $vibrationEnabled");
+    if (vibrationEnabled) {
+      _startVibration();
+    }
+  }
+
   void _startHintLoop() async {
-    while (mounted) {
+    while (mounted) {   
       if (!_isDragging && _dragX == 0) {
         await _hintController.forward();
         await _hintController.reverse();
